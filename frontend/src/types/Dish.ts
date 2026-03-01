@@ -4,14 +4,14 @@ export interface Price {
 }
 
 export interface Ingredient {
-  "@id"?: string;
+  '@id'?: string;
   id?: number;
   name?: string;
   price?: Price;
 }
 
 export interface DishIngredient {
-  "@id"?: string;
+  '@id'?: string;
   id?: number;
   weight?: string;
   dish?: string;
@@ -24,7 +24,7 @@ export interface Recipe {
 }
 
 export interface Dish {
-  "@id"?: string;
+  '@id'?: string;
   id?: number;
   name?: string;
   description?: string;

@@ -41,9 +41,7 @@ const DishList: React.FC = () => {
   return (
     <div>
       <h1>Dishes</h1>
-      {!editingDish && (
-        <button onClick={() => setEditingDish('new')}>Add New Dish</button>
-      )}
+      {!editingDish && <button onClick={() => setEditingDish('new')}>Add New Dish</button>}
 
       {editingDish && (
         <DishForm
@@ -61,11 +59,15 @@ const DishList: React.FC = () => {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {dishes.map((dish) => (
-            <li key={dish.id || dish["@id"]} style={{ border: '1px solid #eee', margin: '10px 0', padding: '10px' }}>
-              <Link to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`} style={{ textDecoration: 'none' }}>
-                <h2 style={{ cursor: 'pointer', color: '#007bff', margin: 0 }}>
-                  {dish.name}
-                </h2>
+            <li
+              key={dish.id || dish['@id']}
+              style={{ border: '1px solid #eee', margin: '10px 0', padding: '10px' }}
+            >
+              <Link
+                to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`}
+                style={{ textDecoration: 'none' }}
+              >
+                <h2 style={{ cursor: 'pointer', color: '#007bff', margin: 0 }}>{dish.name}</h2>
               </Link>
               <p>{dish.description}</p>
             </li>
@@ -74,10 +76,19 @@ const DishList: React.FC = () => {
       )}
 
       <div style={{ marginTop: '20px' }}>
-        <button disabled={page <= 1} onClick={() => setPage(prev => prev - 1)}>Previous</button>
+        <button disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
+          Previous
+        </button>
         <span style={{ margin: '0 10px' }}>Page {page}</span>
-        <button disabled={dishes.length < 30 && (page * 30 >= totalItems)} onClick={() => setPage(prev => prev + 1)}>Next</button>
-        <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>Total items: {totalItems}</div>
+        <button
+          disabled={dishes.length < 30 && page * 30 >= totalItems}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next
+        </button>
+        <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
+          Total items: {totalItems}
+        </div>
       </div>
     </div>
   );

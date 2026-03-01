@@ -11,8 +11,12 @@ function App() {
       <div className="App">
         <header className="App-header">
           <nav style={{ marginBottom: '20px' }}>
-            <Link to="/dishes"><button>Dishes</button></Link>
-            <Link to="/ingredients"><button>Ingredients</button></Link>
+            <Link to="/dishes">
+              <button>Dishes</button>
+            </Link>
+            <Link to="/ingredients">
+              <button>Ingredients</button>
+            </Link>
           </nav>
 
           <Routes>

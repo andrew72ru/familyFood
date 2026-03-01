@@ -36,7 +36,7 @@ const DishDetail: React.FC = () => {
               di.ingredient = await fetchApi(di.ingredient);
             }
             return di;
-          })
+          }),
         );
         setDishIngredients(fullIngredients);
       } else {
@@ -82,10 +82,23 @@ const DishDetail: React.FC = () => {
   }
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '20px', margin: '20px 0', backgroundColor: '#f9f9f9', textAlign: 'left', color: '#333' }}>
-      <button onClick={() => navigate('/dishes')} style={{ float: 'right' }}>Back to List</button>
+    <div
+      style={{
+        border: '1px solid #ccc',
+        padding: '20px',
+        margin: '20px 0',
+        backgroundColor: '#f9f9f9',
+        textAlign: 'left',
+        color: '#333',
+      }}
+    >
+      <button onClick={() => navigate('/dishes')} style={{ float: 'right' }}>
+        Back to List
+      </button>
       <h2>{dish.name}</h2>
-      <p><strong>Description:</strong> {dish.description}</p>
+      <p>
+        <strong>Description:</strong> {dish.description}
+      </p>
 
       {dish.recipe && (
         <div style={{ marginTop: '15px' }}>
@@ -100,7 +113,8 @@ const DishDetail: React.FC = () => {
           <ul>
             {dishIngredients.map((di: DishIngredient, index: number) => (
               <li key={index}>
-                {typeof di.ingredient === 'object' ? di.ingredient.name : di.ingredient} - {di.weight}
+                {typeof di.ingredient === 'object' ? di.ingredient.name : di.ingredient} -{' '}
+                {di.weight}
               </li>
             ))}
           </ul>
@@ -108,8 +122,12 @@ const DishDetail: React.FC = () => {
       )}
 
       <div style={{ marginTop: '20px' }}>
-        <button onClick={() => setIsEditing(true)} style={{ marginRight: '10px' }}>Edit</button>
-        <button onClick={handleDelete} style={{ color: 'red' }}>Delete</button>
+        <button onClick={() => setIsEditing(true)} style={{ marginRight: '10px' }}>
+          Edit
+        </button>
+        <button onClick={handleDelete} style={{ color: 'red' }}>
+          Delete
+        </button>
       </div>
     </div>
   );

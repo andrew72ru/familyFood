@@ -36,7 +36,7 @@ const IngredientManager: React.FC = () => {
       if (newIngredientPrice !== '' || newIngredientUnit !== '') {
         payload.price = {
           price: newIngredientPrice !== '' ? Number(newIngredientPrice) : null,
-          unit: newIngredientUnit || null
+          unit: newIngredientUnit || null,
         };
       }
       await fetchApi('/api/ingredients', {
@@ -69,7 +69,7 @@ const IngredientManager: React.FC = () => {
       const payload: any = { name: editingName };
       payload.price = {
         price: editingPrice !== '' ? Number(editingPrice) : null,
-        unit: editingUnit || null
+        unit: editingUnit || null,
       };
       await fetchApi(editingId, {
         method: 'PATCH',
@@ -90,57 +90,68 @@ const IngredientManager: React.FC = () => {
       <form onSubmit={handleCreate}>
         <input
           value={newIngredientName}
-          onChange={e => setNewIngredientName(e.target.value)}
+          onChange={(e) => setNewIngredientName(e.target.value)}
           placeholder="New ingredient name"
           required
         />
         <input
           type="number"
           value={newIngredientPrice}
-          onChange={e => setNewIngredientPrice(e.target.value === '' ? '' : Number(e.target.value))}
+          onChange={(e) =>
+            setNewIngredientPrice(e.target.value === '' ? '' : Number(e.target.value))
+          }
           placeholder="Price"
         />
         <input
           value={newIngredientUnit}
-          onChange={e => setNewIngredientUnit(e.target.value)}
+          onChange={(e) => setNewIngredientUnit(e.target.value)}
           placeholder="Unit"
         />
         <button type="submit">Add Ingredient</button>
       </form>
 
       <ul>
-        {ingredients.map(ing => (
+        {ingredients.map((ing) => (
           <li key={ing['@id']}>
             {editingId === ing['@id'] ? (
               <form onSubmit={handleUpdate} style={{ display: 'inline' }}>
                 <input
                   value={editingName}
-                  onChange={e => setEditingName(e.target.value)}
+                  onChange={(e) => setEditingName(e.target.value)}
                   required
                 />
                 <input
                   type="number"
                   value={editingPrice}
-                  onChange={e => setEditingPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                  onChange={(e) =>
+                    setEditingPrice(e.target.value === '' ? '' : Number(e.target.value))
+                  }
                   placeholder="Price"
                 />
                 <input
                   value={editingUnit}
-                  onChange={e => setEditingUnit(e.target.value)}
+                  onChange={(e) => setEditingUnit(e.target.value)}
                   placeholder="Unit"
                 />
                 <button type="submit">Save</button>
-                <button type="button" onClick={() => setEditingId(null)}>Cancel</button>
+                <button type="button" onClick={() => setEditingId(null)}>
+                  Cancel
+                </button>
               </form>
             ) : (
               <>
-                {ing.name} {ing.price?.price && `(${ing.price.price} per ${ing.price.unit || 'unit'})`}
-                <button onClick={() => {
-                  setEditingId(ing['@id']!);
-                  setEditingName(ing.name!);
-                  setEditingPrice(ing.price?.price ?? '');
-                  setEditingUnit(ing.price?.unit ?? '');
-                }}>Edit</button>
+                {ing.name}{' '}
+                {ing.price?.price && `(${ing.price.price} per ${ing.price.unit || 'unit'})`}
+                <button
+                  onClick={() => {
+                    setEditingId(ing['@id']!);
+                    setEditingName(ing.name!);
+                    setEditingPrice(ing.price?.price ?? '');
+                    setEditingUnit(ing.price?.unit ?? '');
+                  }}
+                >
+                  Edit
+                </button>
                 <button onClick={() => handleDelete(ing['@id']!)}>Delete</button>
               </>
             )}
@@ -149,10 +160,19 @@ const IngredientManager: React.FC = () => {
       </ul>
 
       <div style={{ marginTop: '20px' }}>
-        <button disabled={page <= 1} onClick={() => setPage(prev => prev - 1)}>Previous</button>
+        <button disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
+          Previous
+        </button>
         <span style={{ margin: '0 10px' }}>Page {page}</span>
-        <button disabled={ingredients.length < 30 && (page * 30 >= totalItems)} onClick={() => setPage(prev => prev + 1)}>Next</button>
-        <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>Total items: {totalItems}</div>
+        <button
+          disabled={ingredients.length < 30 && page * 30 >= totalItems}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next
+        </button>
+        <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
+          Total items: {totalItems}
+        </div>
       </div>
     </div>
   );

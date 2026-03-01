@@ -8,7 +8,10 @@ export const fetchApi = async (path: string, options: RequestInit = {}) => {
     headers.set('Accept', 'application/ld+json');
   }
   if (!headers.has('Content-Type') && ['POST', 'PUT', 'PATCH'].includes(options.method || '')) {
-    headers.set('Content-Type', options.method === 'PATCH' ? 'application/merge-patch+json' : 'application/ld+json');
+    headers.set(
+      'Content-Type',
+      options.method === 'PATCH' ? 'application/merge-patch+json' : 'application/ld+json',
+    );
   }
 
   const response = await fetch(url, { ...options, headers });
