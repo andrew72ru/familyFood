@@ -23,3 +23,7 @@ docker-compose.override.yaml
 ###> ansible ###
 /ansible/vars/secrets.yml
 ###< ansible ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
