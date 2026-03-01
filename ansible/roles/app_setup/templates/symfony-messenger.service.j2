@@ -1,0 +1,14 @@
+[Unit]
+Description=Symfony Messenger - Consume async queue
+After=network.target postgresql.service
+
+[Service]
+User={{ ansible_user }}
+Group=www-data
+WorkingDirectory={{ app_root }}
+ExecStart=/usr/bin/php {{ app_root }}/bin/console messenger:consume async
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

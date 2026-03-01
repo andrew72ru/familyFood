@@ -1,0 +1,26 @@
+- name: Deploy Symfony Messenger SystemD unit
+  template:
+    src: symfony-messenger.service.j2
+    dest: /etc/systemd/system/symfony-messenger.service
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - messenger-setup
+    - never
+
+- name: Reload SystemD daemon
+  systemd:
+    daemon_reload: yes
+  tags:
+    - messenger-setup
+    - never
+
+- name: Ensure Symfony Messenger service is started and enabled
+  service:
+    name: symfony-messenger
+    state: started
+    enabled: yes
+  tags:
+    - messenger-setup
+    - never

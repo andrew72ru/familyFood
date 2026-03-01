@@ -37,6 +37,17 @@ This directory contains Ansible playbooks to configure a Ubuntu LTS server for t
     ansible-playbook playbook.yml
     ```
 
+### Running Specific Tasks (Manual Only)
+
+Some tasks are marked as `never` and must be run manually using specific tags.
+
+#### Symfony Messenger Setup
+To deploy and enable the Symfony Messenger systemd unit (e.g., for processing async messages), use the `messenger-setup` tag:
+
+```bash
+ansible-playbook playbook.yml --tags "messenger-setup"
+```
+
 ## Technologies Configured
 
 - **PHP 8.3** (with FPM, CLI, and essential extensions)
