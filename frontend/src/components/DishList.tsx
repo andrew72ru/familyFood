@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Card, Spinner, Alert, Row, Col } from 'react-bootstrap';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup } from 'react-bootstrap';
 import { Dish } from '../types/Dish';
 import { fetchApi } from '../api';
 import DishForm from './DishForm';
 import Pagination from './Pagination';
 
 const DishList: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [editingDish, setEditingDish] = useState<Dish | null | 'new'>(null);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const searchTerm = searchParams.get('search') || '';
+  const [searchInput, setSearchInput] = useState(searchTerm);
 
   const fetchDishes = React.useCallback(async () => {
     try {
       setLoading(true);
-      const data = await fetchApi(`/api/dishes?page=${page}`);
+      let url = `/api/dishes?page=${page}`;
+      if (searchTerm) {
+        url += `&search[name]=${encodeURIComponent(searchTerm)}`;
+      }
+      const data = await fetchApi(url);
       const fetchedDishes = data['hydra:member'] || data['member'] || [];
       setDishes(fetchedDishes);
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
@@ -26,11 +33,31 @@ const DishList: React.FC = () => {
       setError(err.message);
       setLoading(false);
     }
-  }, [page]);
+  }, [page, searchTerm]);
+
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchDishes();
   }, [fetchDishes]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput) {
+      setSearchParams({ search: searchInput });
+    } else {
+      setSearchParams({});
+    }
+    setPage(1);
+  };
+
+  const handleReset = () => {
+    setSearchInput('');
+    setSearchParams({});
+    setPage(1);
+  };
 
   if (loading) {
     return (
@@ -59,6 +86,25 @@ const DishList: React.FC = () => {
             Add New Dish
           </Button>
         )}
+      </div>
+
+      <div className="mb-4">
+        <Form onSubmit={handleSearch}>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              placeholder="Search dishes by name..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <Button variant="outline-secondary" type="submit">
+              Search
+            </Button>
+            <Button variant="outline-danger" type="button" onClick={handleReset}>
+              Reset
+            </Button>
+          </InputGroup>
+        </Form>
       </div>
 
       {editingDish && (

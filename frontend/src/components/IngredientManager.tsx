@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button, Form, Table, Alert, InputGroup } from 'react-bootstrap';
 import { Ingredient } from '../types/Dish';
 import { fetchApi } from '../api';
 import Pagination from './Pagination';
 
 const IngredientManager: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [newIngredientName, setNewIngredientName] = useState('');
   const [newIngredientPrice, setNewIngredientPrice] = useState<number | ''>('');
@@ -16,20 +18,46 @@ const IngredientManager: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const searchTerm = searchParams.get('search') || '';
+  const [searchInput, setSearchInput] = useState(searchTerm);
 
   const fetchIngredients = React.useCallback(async () => {
     try {
-      const data = await fetchApi(`/api/ingredients?page=${page}`);
+      let url = `/api/ingredients?page=${page}`;
+      if (searchTerm) {
+        url += `&search[name]=${encodeURIComponent(searchTerm)}`;
+      }
+      const data = await fetchApi(url);
       setIngredients(data['hydra:member'] || data['member'] || []);
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
     } catch (err: any) {
       setError(err.message);
     }
-  }, [page]);
+  }, [page, searchTerm]);
+
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchIngredients();
   }, [fetchIngredients]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInput) {
+      setSearchParams({ search: searchInput });
+    } else {
+      setSearchParams({});
+    }
+    setPage(1);
+  };
+
+  const handleReset = () => {
+    setSearchInput('');
+    setSearchParams({});
+    setPage(1);
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +120,25 @@ const IngredientManager: React.FC = () => {
           {error}
         </Alert>
       )}
+
+      <div className="mb-4">
+        <Form onSubmit={handleSearch}>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              placeholder="Search ingredients by name..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <Button variant="outline-secondary" type="submit">
+              Search
+            </Button>
+            <Button variant="outline-danger" type="button" onClick={handleReset}>
+              Reset
+            </Button>
+          </InputGroup>
+        </Form>
+      </div>
 
       <Form onSubmit={handleCreate} className="mb-4">
         <InputGroup>
