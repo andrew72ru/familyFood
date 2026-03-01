@@ -25,6 +25,8 @@ const DishDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isFetchingRecipe, setIsFetchingRecipe] = useState(false);
+  const [recipeFeedback, setRecipeFeedback] = useState<string | null>(null);
 
   const fetchDish = React.useCallback(async () => {
     if (!id) return;
@@ -75,6 +77,23 @@ const DishDetail: React.FC = () => {
       navigate('/dishes');
     } catch (err: any) {
       setError(err);
+    }
+  };
+
+  const handleGetRecipe = async () => {
+    if (!dish?.id) return;
+    try {
+      setIsFetchingRecipe(true);
+      setRecipeFeedback(null);
+      await fetchApi('/api/get_recipes', {
+        method: 'POST',
+        body: JSON.stringify({ dishId: dish.id }),
+      });
+      setRecipeFeedback("If everything's ok, after a minute you'll see a recipe");
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setIsFetchingRecipe(false);
     }
   };
 
@@ -154,6 +173,17 @@ const DishDetail: React.FC = () => {
                 </div>
               )}
 
+              {recipeFeedback && (
+                <Alert
+                  variant="info"
+                  className="mb-4"
+                  onClose={() => setRecipeFeedback(null)}
+                  dismissible
+                >
+                  {recipeFeedback}
+                </Alert>
+              )}
+
               {dishIngredients.length > 0 && (
                 <div className="mb-4">
                   <h5 className="text-muted border-bottom pb-2">Ingredients</h5>
@@ -173,6 +203,30 @@ const DishDetail: React.FC = () => {
               )}
             </Card.Body>
             <Card.Footer className="bg-white py-3">
+              <Button
+                variant="outline-primary"
+                onClick={handleGetRecipe}
+                disabled={
+                  isFetchingRecipe || (!!dish?.recipe?.text && dish.recipe.text.trim() !== '')
+                }
+                className="me-2"
+              >
+                {isFetchingRecipe ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                    Requesting...
+                  </>
+                ) : (
+                  'Get a recipe'
+                )}
+              </Button>
               <Button variant="primary" onClick={() => setIsEditing(true)} className="me-2">
                 Edit Dish
               </Button>

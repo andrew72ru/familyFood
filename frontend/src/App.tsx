@@ -6,6 +6,8 @@ import DishList from './components/DishList';
 import IngredientManager from './components/IngredientManager';
 import TagManager from './components/TagManager';
 import DishDetail from './components/DishDetail';
+import DishCreate from './components/DishCreate';
+import AdminDishList from './components/AdminDishList';
 
 function App() {
   return (
@@ -37,9 +39,11 @@ function App() {
           <Routes>
             <Route path="/" element={<DishList />} />
             <Route path="/dishes" element={<DishList />} />
+            <Route path="/dishes/new" element={<DishCreate />} />
             <Route path="/dishes/:id" element={<DishDetail />} />
             <Route path="/ingredients" element={<IngredientManager />} />
             <Route path="/tags" element={<TagManager />} />
+            <Route path="/admin/dishes" element={<AdminDishList />} />
           </Routes>
         </Container>
       </div>

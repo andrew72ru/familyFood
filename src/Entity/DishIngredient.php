@@ -22,6 +22,7 @@ class DishIngredient
     private Dish | null $dish = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private Ingredient | null $ingredient = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

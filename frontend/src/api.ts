@@ -32,11 +32,14 @@ export const fetchApi = async (path: string, options: RequestInit = {}) => {
     return null;
   }
 
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : null;
+
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+    const errorData = data || {};
     const message = errorData['hydra:description'] || `API error: ${response.statusText}`;
     throw new ApiError(message, response.status, response.statusText, errorData);
   }
 
-  return response.json();
+  return data;
 };

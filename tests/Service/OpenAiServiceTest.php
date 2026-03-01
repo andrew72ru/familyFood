@@ -2,8 +2,7 @@
 
 namespace App\Tests\Service;
 
-use App\Dto\OpenAiResponseDto;
-use App\Dto\UsageDto;
+use App\Dto\{OpenAiResponseDto, UsageDto};
 use App\Service\OpenAiService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

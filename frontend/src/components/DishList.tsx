@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup, Badge } from 'react-bootstrap';
 import { Dish, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
-import DishForm from './DishForm';
 import Pagination from './Pagination';
 import ErrorDisplay from './ErrorDisplay';
 
@@ -12,11 +11,12 @@ const DishList: React.FC = () => {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [error, setError] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [editingDish, setEditingDish] = useState<Dish | null | 'new'>(null);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const searchTerm = searchParams.get('search') || '';
   const [searchInput, setSearchInput] = useState(searchTerm);
+
+  const navigate = useNavigate();
 
   const fetchDishes = React.useCallback(async () => {
     try {
@@ -78,11 +78,9 @@ const DishList: React.FC = () => {
     <div className="mb-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Dishes</h1>
-        {!editingDish && (
-          <Button variant="primary" onClick={() => setEditingDish('new')}>
-            Add New Dish
-          </Button>
-        )}
+        <Button variant="primary" onClick={() => navigate('/dishes/new')}>
+          Add New Dish
+        </Button>
       </div>
 
       <div className="mb-4">
@@ -103,21 +101,6 @@ const DishList: React.FC = () => {
           </InputGroup>
         </Form>
       </div>
-
-      {editingDish && (
-        <Card className="mb-4">
-          <Card.Body>
-            <DishForm
-              dish={editingDish === 'new' ? undefined : editingDish}
-              onSave={() => {
-                setEditingDish(null);
-                fetchDishes();
-              }}
-              onCancel={() => setEditingDish(null)}
-            />
-          </Card.Body>
-        </Card>
-      )}
 
       {dishes.length === 0 ? (
         <Alert variant="info">No dishes found.</Alert>

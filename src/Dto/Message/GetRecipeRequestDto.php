@@ -2,13 +2,13 @@
 
 namespace App\Dto\Message;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\{ApiResource, Post};
 
 #[ApiResource(
     operations: [
         new Post(
             status: 202,
+            shortName: 'GetRecipe',
             output: false,
             messenger: true,
             read: false,

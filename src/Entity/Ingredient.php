@@ -28,7 +28,7 @@ class Ingredient
     /**
      * @var Collection<int, IngredientComment>
      */
-    #[ORM\OneToMany(targetEntity: IngredientComment::class, mappedBy: 'ingredient')]
+    #[ORM\OneToMany(targetEntity: IngredientComment::class, mappedBy: 'ingredient', cascade: ['remove'], orphanRemoval: true)]
     private Collection $comments;
 
     #[ORM\Embedded]
