@@ -1,6 +1,7 @@
 monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - openai
 
 when@dev:
     monolog:
@@ -9,7 +10,12 @@ when@dev:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
-                channels: ["!event"]
+                channels: ["!event", "!openai"]
+            openai:
+                type: stream
+                path: "%kernel.logs_dir%/openai.log"
+                level: info
+                channels: [openai]
             console:
                 type: console
                 process_psr_3_messages: false
