@@ -2,13 +2,11 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
-#[ApiResource]
-final class Recipe
+class Recipe
 {
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private string | null $text = null;

@@ -10,7 +10,7 @@ use Gedmo\Mapping\Annotation\Timestampable;
 
 #[ORM\Entity(repositoryClass: RecipeCommentRepository::class)]
 #[ApiResource]
-final class RecipeComment
+class RecipeComment
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private int | null $id = null;

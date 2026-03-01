@@ -2,7 +2,8 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Metadata as API;
 use App\Repository\DishRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\DBAL\Types\Types;
@@ -11,8 +12,13 @@ use Gedmo\Mapping\Annotation\Timestampable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DishRepository::class)]
-#[ApiResource]
-final class Dish
+#[API\GetCollection(
+    parameters: [
+        'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
+    ]
+)]
+#[API\Get, API\Post, API\Patch, API\Delete]
+class Dish
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private int | null $id = null;

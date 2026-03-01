@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ApiResource]
-final class IngredientComment
+class IngredientComment
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private int | null $id = null;

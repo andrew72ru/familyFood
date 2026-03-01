@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DishIngredientRepository::class)]
 #[ApiResource]
-final class DishIngredient
+class DishIngredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private int | null $id = null;
@@ -21,7 +21,7 @@ final class DishIngredient
     #[ORM\JoinColumn(nullable: false)]
     private Dish | null $dish = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne]
     private Ingredient | null $ingredient = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

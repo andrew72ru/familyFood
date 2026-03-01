@@ -2,15 +2,21 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Metadata as API;
 use App\Repository\IngredientRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: IngredientRepository::class)]
-#[ApiResource]
-final class Ingredient
+#[API\GetCollection(
+    parameters: [
+        'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
+    ]
+)]
+#[API\Get, API\Post, API\Patch, API\Delete]
+class Ingredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private int | null $id = null;
@@ -25,9 +31,13 @@ final class Ingredient
     #[ORM\OneToMany(targetEntity: IngredientComment::class, mappedBy: 'ingredient')]
     private Collection $comments;
 
+    #[ORM\Embedded]
+    private Price $price;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->price = new Price();
     }
 
     public function getId(): int | null
@@ -73,6 +83,18 @@ final class Ingredient
                 $comment->setIngredient(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPrice(): Price
+    {
+        return $this->price;
+    }
+
+    public function setPrice(Price $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }
