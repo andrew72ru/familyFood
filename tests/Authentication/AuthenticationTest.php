@@ -60,6 +60,6 @@ final class AuthenticationTest extends ApiTestCase
             ],
         ]);
 
-        $this->assertResponseStatusCodeSame(401);
+        self::assertResponseStatusCodeSame(401);
     }
 }
