@@ -19,3 +19,7 @@ docker-compose.override.yaml
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> ansible ###
+/ansible/vars/secrets.yml
+###< ansible ###

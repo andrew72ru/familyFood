@@ -1,0 +1,11 @@
+# Global variables for the production environment
+app_name: family_food
+app_root: /var/www/{{ app_name }}
+
+# Versions
+php_version: "8.3"
+node_version: "20.x"
+postgresql_version: "16"
+
+# Secrets are defined in ansible/vars/secrets.yml which is git-ignored
+# or you can use ansible-vault for inventories/production/group_vars/vault.yml

@@ -1,0 +1,25 @@
+- name: Create application root directory
+  file:
+    path: "{{ app_root }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: www-data
+    mode: '0775'
+
+- name: Create shared directory for logs and cache
+  file:
+    path: "{{ app_root }}/var"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: www-data
+    mode: '0777'
+    recurse: yes
+
+- name: Set ACL for Symfony directories
+  acl:
+    path: "{{ app_root }}/var"
+    entity: www-data
+    etype: user
+    permissions: rwx
+    state: present
+    recursive: yes

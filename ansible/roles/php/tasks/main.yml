@@ -1,0 +1,34 @@
+- name: Add Ondrej PHP PPA
+  apt_repository:
+    repo: 'ppa:ondrej/php'
+    state: present
+
+- name: Install PHP {{ php_version }} and extensions
+  apt:
+    name:
+      - "php{{ php_version }}-fpm"
+      - "php{{ php_version }}-cli"
+      - "php{{ php_version }}-common"
+      - "php{{ php_version }}-mbstring"
+      - "php{{ php_version }}-xml"
+      - "php{{ php_version }}-zip"
+      - "php{{ php_version }}-curl"
+      - "php{{ php_version }}-pgsql"
+      - "php{{ php_version }}-intl"
+      - "php{{ php_version }}-gd"
+      - "php{{ php_version }}-bcmath"
+      - "php{{ php_version }}-apcu"
+      - "php{{ php_version }}-opcache"
+    state: present
+
+- name: Ensure PHP-FPM is running
+  service:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: yes
+
+- name: Install Composer
+  shell: |
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+  args:
+    creates: /usr/local/bin/composer

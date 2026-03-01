@@ -1,0 +1,26 @@
+- name: Add Caddy apt key
+  apt_key:
+    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+    state: present
+
+- name: Add Caddy repository
+  apt_repository:
+    repo: "deb https://dl.cloudsmith.io/public/caddy/stable/debian/ any-branch main"
+    state: present
+
+- name: Install Caddy
+  apt:
+    name: caddy
+    state: present
+
+- name: Create Caddyfile
+  template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+  notify: Reload Caddy
+
+- name: Ensure Caddy is running
+  service:
+    name: caddy
+    state: started
+    enabled: yes

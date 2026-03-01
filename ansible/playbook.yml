@@ -1,0 +1,21 @@
+---
+- name: Configure server for FamilyFood application
+  hosts: all
+  become: yes
+
+  vars_files:
+    - vars/secrets.yml
+
+  roles:
+    - common
+    - postgresql
+    - php
+    - nodejs
+    - caddy
+    - app_setup
+
+  post_tasks:
+    - name: Final check - Caddy status
+      service:
+        name: caddy
+        state: started
