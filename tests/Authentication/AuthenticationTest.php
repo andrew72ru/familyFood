@@ -40,10 +40,32 @@ final class AuthenticationTest extends ApiTestCase
         $json = $response->toArray();
         self::assertResponseIsSuccessful();
         $this->assertArrayHasKey('token', $json);
+        $this->assertArrayHasKey('refresh_token', $json);
+        $this->assertArrayHasKey('refresh_token_expiration', $json);
+        $this->assertIsString($json['token']);
+        $this->assertNotEmpty($json['token']);
+        $this->assertIsString($json['refresh_token']);
+        $this->assertNotEmpty($json['refresh_token']);
 
-        // Test with the token
+        \sleep(1);
+
+        // Test Refreshing token
+        $response = $client->request('POST', '/api/refresh_token', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'refresh_token' => $json['refresh_token'],
+            ],
+        ]);
+        self::assertResponseIsSuccessful();
+        $jsonRefresh = $response->toArray();
+        $this->assertArrayHasKey('token', $jsonRefresh);
+        $this->assertArrayHasKey('refresh_token', $jsonRefresh);
+        $this->assertArrayHasKey('refresh_token_expiration', $jsonRefresh);
+        $this->assertNotEquals($json['token'], $jsonRefresh['token']);
+
+        // Test with the new token
         $client->request('GET', '/api/users', [
-            'headers' => ['Authorization' => 'Bearer ' . $json['token']],
+            'headers' => ['Authorization' => 'Bearer ' . $jsonRefresh['token']],
         ]);
         self::assertResponseIsSuccessful();
     }
