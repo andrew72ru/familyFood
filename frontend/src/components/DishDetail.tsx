@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Dish, DishIngredient } from '../types/Dish';
+import { Button, Card, ListGroup, Spinner, Alert, Container, Row, Col } from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
+import { Dish, DishIngredient, Ingredient } from '../types/Dish';
 import { fetchApi } from '../api';
 import DishForm from './DishForm';
 
@@ -16,6 +18,7 @@ const DishDetail: React.FC = () => {
   const fetchDish = React.useCallback(async () => {
     if (!id) return;
     try {
+      setLoading(true);
       const data = await fetchApi(`/api/dishes/${id}`);
       setDish(data);
 
@@ -64,72 +67,105 @@ const DishDetail: React.FC = () => {
     }
   };
 
-  if (loading) return <div>Loading dish details...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!dish) return <div>Dish not found.</div>;
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading dish details...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="danger" className="mt-3">
+        Error: {error}
+      </Alert>
+    );
+  }
+
+  if (!dish) {
+    return (
+      <Alert variant="warning" className="mt-3">
+        Dish not found.
+      </Alert>
+    );
+  }
 
   if (isEditing) {
     return (
-      <DishForm
-        dish={dish}
-        onSave={() => {
-          setIsEditing(false);
-          fetchDish();
-        }}
-        onCancel={() => setIsEditing(false)}
-      />
+      <Card className="mt-3">
+        <Card.Body>
+          <DishForm
+            dish={dish}
+            onSave={() => {
+              setIsEditing(false);
+              fetchDish();
+            }}
+            onCancel={() => setIsEditing(false)}
+          />
+        </Card.Body>
+      </Card>
     );
   }
 
   return (
-    <div
-      style={{
-        border: '1px solid #ccc',
-        padding: '20px',
-        margin: '20px 0',
-        backgroundColor: '#f9f9f9',
-        textAlign: 'left',
-        color: '#333',
-      }}
-    >
-      <button onClick={() => navigate('/dishes')} style={{ float: 'right' }}>
-        Back to List
-      </button>
-      <h2>{dish.name}</h2>
-      <p>
-        <strong>Description:</strong> {dish.description}
-      </p>
+    <Container className="py-4">
+      <Row className="justify-content-center">
+        <Col md={10} lg={8}>
+          <Card className="shadow-sm">
+            <Card.Header className="d-flex justify-content-between align-items-center bg-white py-3">
+              <h2 className="mb-0">{dish.name}</h2>
+              <Button variant="outline-secondary" size="sm" onClick={() => navigate('/dishes')}>
+                Back to List
+              </Button>
+            </Card.Header>
+            <Card.Body>
+              <div className="mb-4">
+                <h5 className="text-muted border-bottom pb-2">Description</h5>
+                <p>{dish.description || 'No description provided.'}</p>
+              </div>
 
-      {dish.recipe && (
-        <div style={{ marginTop: '15px' }}>
-          <strong>Recipe:</strong>
-          <p style={{ whiteSpace: 'pre-wrap' }}>{dish.recipe.text}</p>
-        </div>
-      )}
+              {dish.recipe && (
+                <div className="mb-4">
+                  <h5 className="text-muted border-bottom pb-2">Recipe</h5>
+                  <div className="markdown-body">
+                    <ReactMarkdown>{dish.recipe.text || ''}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
 
-      {dishIngredients.length > 0 && (
-        <div style={{ marginTop: '15px' }}>
-          <strong>Ingredients:</strong>
-          <ul>
-            {dishIngredients.map((di: DishIngredient, index: number) => (
-              <li key={index}>
-                {typeof di.ingredient === 'object' ? di.ingredient.name : di.ingredient} -{' '}
-                {di.weight}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div style={{ marginTop: '20px' }}>
-        <button onClick={() => setIsEditing(true)} style={{ marginRight: '10px' }}>
-          Edit
-        </button>
-        <button onClick={handleDelete} style={{ color: 'red' }}>
-          Delete
-        </button>
-      </div>
-    </div>
+              {dishIngredients.length > 0 && (
+                <div className="mb-4">
+                  <h5 className="text-muted border-bottom pb-2">Ingredients</h5>
+                  <ListGroup variant="flush">
+                    {dishIngredients.map((di: DishIngredient, index: number) => (
+                      <ListGroup.Item key={index} className="px-0">
+                        <span className="fw-bold">
+                          {typeof di.ingredient === 'object'
+                            ? (di.ingredient as Ingredient).name
+                            : di.ingredient}
+                        </span>
+                        <span className="text-muted ms-2">— {di.weight}</span>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                </div>
+              )}
+            </Card.Body>
+            <Card.Footer className="bg-white py-3">
+              <Button variant="primary" onClick={() => setIsEditing(true)} className="me-2">
+                Edit Dish
+              </Button>
+              <Button variant="danger" onClick={handleDelete}>
+                Delete Dish
+              </Button>
+            </Card.Footer>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Button, Card, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import { Dish } from '../types/Dish';
 import { fetchApi } from '../api';
 import DishForm from './DishForm';
+import Pagination from './Pagination';
 
 const DishList: React.FC = () => {
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -31,65 +33,83 @@ const DishList: React.FC = () => {
   }, [fetchDishes]);
 
   if (loading) {
-    return <div>Loading dishes...</div>;
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading dishes...</span>
+        </Spinner>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Alert variant="danger" className="mt-3">
+        Error: {error}
+      </Alert>
+    );
   }
 
   return (
-    <div>
-      <h1>Dishes</h1>
-      {!editingDish && <button onClick={() => setEditingDish('new')}>Add New Dish</button>}
+    <div className="mb-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1>Dishes</h1>
+        {!editingDish && (
+          <Button variant="primary" onClick={() => setEditingDish('new')}>
+            Add New Dish
+          </Button>
+        )}
+      </div>
 
       {editingDish && (
-        <DishForm
-          dish={editingDish === 'new' ? undefined : editingDish}
-          onSave={() => {
-            setEditingDish(null);
-            fetchDishes();
-          }}
-          onCancel={() => setEditingDish(null)}
-        />
+        <Card className="mb-4">
+          <Card.Body>
+            <DishForm
+              dish={editingDish === 'new' ? undefined : editingDish}
+              onSave={() => {
+                setEditingDish(null);
+                fetchDishes();
+              }}
+              onCancel={() => setEditingDish(null)}
+            />
+          </Card.Body>
+        </Card>
       )}
 
       {dishes.length === 0 ? (
-        <p>No dishes found.</p>
+        <Alert variant="info">No dishes found.</Alert>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <Row xs={1} md={2} lg={3} className="g-4">
           {dishes.map((dish) => (
-            <li
-              key={dish.id || dish['@id']}
-              style={{ border: '1px solid #eee', margin: '10px 0', padding: '10px' }}
-            >
-              <Link
-                to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <h2 style={{ cursor: 'pointer', color: '#007bff', margin: 0 }}>{dish.name}</h2>
-              </Link>
-              <p>{dish.description}</p>
-            </li>
+            <Col key={dish.id || dish['@id']}>
+              <Card h-100>
+                <Card.Body>
+                  <Card.Title>
+                    <Link
+                      to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`}
+                      className="text-decoration-none"
+                    >
+                      {dish.name}
+                    </Link>
+                  </Card.Title>
+                  <Card.Text className="text-muted">
+                    {dish.description && dish.description.length > 100
+                      ? `${dish.description.substring(0, 100)}...`
+                      : dish.description}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
           ))}
-        </ul>
+        </Row>
       )}
 
-      <div style={{ marginTop: '20px' }}>
-        <button disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
-          Previous
-        </button>
-        <span style={{ margin: '0 10px' }}>Page {page}</span>
-        <button
-          disabled={dishes.length < 30 && page * 30 >= totalItems}
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          Next
-        </button>
-        <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
-          Total items: {totalItems}
-        </div>
-      </div>
+      <Pagination
+        currentPage={page}
+        totalItems={totalItems}
+        itemsPerPage={30}
+        onPageChange={setPage}
+      />
     </div>
   );
 };

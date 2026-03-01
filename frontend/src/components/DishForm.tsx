@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Form, Button, ListGroup, InputGroup, Alert, Spinner, Tabs, Tab } from 'react-bootstrap';
+import ReactMarkdown from 'react-markdown';
 import { Dish, Ingredient, DishIngredient } from '../types/Dish';
 import { fetchApi } from '../api';
 
@@ -17,6 +19,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   const [weight, setWeight] = useState<string>('');
   const [dishIngredients, setDishIngredients] = useState<DishIngredient[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchApi('/api/ingredients').then((data) =>
@@ -24,6 +27,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
     );
     if (dish && dish.dishIngredients) {
       const loadDishIngredients = async () => {
+        setLoading(true);
         const fullIngredients = await Promise.all(
           (dish.dishIngredients as any[]).map(async (di: any) => {
             if (typeof di === 'string') {
@@ -41,6 +45,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           }),
         );
         setDishIngredients(fullIngredients);
+        setLoading(false);
       };
       loadDishIngredients();
     }
@@ -54,7 +59,6 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
     const newDishIng: DishIngredient = {
       ingredient: selectedIngredient,
       weight: weight,
-      // We don't have an ID yet if it's new
     };
 
     setDishIngredients([...dishIngredients, { ...newDishIng, ingredient }]);
@@ -69,6 +73,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const payload: any = {
         name,
         description,
@@ -88,11 +93,6 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
         });
       }
 
-      // Handle DishIngredients
-      // This is a bit complex because we need to link them to the savedDish.
-      // API Platform usually allows nested writes if configured, but let's do it explicitly if needed.
-      // Actually, if we want to be safe, we create/update DishIngredient entities separately.
-
       for (const di of dishIngredients) {
         if (!di['@id']) {
           await fetchApi('/api/dish_ingredients', {
@@ -107,66 +107,126 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
         }
       }
 
+      setLoading(false);
       onSave();
     } catch (err: any) {
       setError(err.message);
+      setLoading(false);
     }
   };
 
+  if (loading && !name) {
+    return (
+      <div className="text-center p-5">
+        <Spinner animation="border" />
+      </div>
+    );
+  }
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}
-    >
-      <h4>{dish ? 'Edit Dish' : 'Create Dish'}</h4>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div>
-        <label>Name: </label>
-        <input value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div>
-        <label>Description: </label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-      </div>
-      <div>
-        <label>Recipe: </label>
-        <textarea value={recipeText} onChange={(e) => setRecipeText(e.target.value)} />
-      </div>
+    <Form onSubmit={handleSubmit} className="p-2">
+      <h4 className="mb-3">{dish ? 'Edit Dish' : 'Create Dish'}</h4>
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
-      <h5>Ingredients</h5>
-      <ul>
+      <Form.Group className="mb-3">
+        <Form.Label>Name</Form.Label>
+        <Form.Control
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          placeholder="Enter dish name"
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Description</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={2}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Enter dish description"
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Recipe Instructions</Form.Label>
+        <Tabs defaultActiveKey="edit" className="mb-2">
+          <Tab eventKey="edit" title="Edit">
+            <Form.Control
+              as="textarea"
+              rows={4}
+              value={recipeText}
+              onChange={(e) => setRecipeText(e.target.value)}
+              placeholder="Enter recipe instructions (Markdown supported)"
+            />
+          </Tab>
+          <Tab eventKey="preview" title="Preview">
+            <div className="p-3 border rounded bg-white" style={{ minHeight: '106px' }}>
+              <ReactMarkdown>{recipeText || '*No recipe content*'}</ReactMarkdown>
+            </div>
+          </Tab>
+        </Tabs>
+      </Form.Group>
+
+      <hr />
+      <h5 className="mb-3">Ingredients</h5>
+      <ListGroup className="mb-3">
         {dishIngredients.map((di, index) => (
-          <li key={index}>
-            {(di.ingredient as Ingredient)?.name} - {di.weight}
-            <button type="button" onClick={() => handleRemoveIngredient(index)}>
+          <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+            <div>
+              <span className="fw-bold">{(di.ingredient as Ingredient)?.name}</span>
+              <span className="text-muted ms-2">— {di.weight}</span>
+            </div>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={() => handleRemoveIngredient(index)}
+            >
               Remove
-            </button>
-          </li>
+            </Button>
+          </ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
 
-      <div>
-        <select value={selectedIngredient} onChange={(e) => setSelectedIngredient(e.target.value)}>
-          <option value="">Select Ingredient</option>
-          {ingredients.map((ing) => (
-            <option key={ing['@id']} value={ing['@id']}>
-              {ing.name}
-            </option>
-          ))}
-        </select>
-        <input placeholder="Weight" value={weight} onChange={(e) => setWeight(e.target.value)} />
-        <button type="button" onClick={handleAddIngredient}>
-          Add
-        </button>
+      <div className="bg-light p-3 rounded mb-4">
+        <h6 className="mb-3">Add Ingredient</h6>
+        <InputGroup>
+          <Form.Select
+            value={selectedIngredient}
+            onChange={(e) => setSelectedIngredient(e.target.value)}
+          >
+            <option value="">Select Ingredient</option>
+            {ingredients.map((ing) => (
+              <option key={ing['@id']} value={ing['@id']}>
+                {ing.name}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Control
+            placeholder="Weight (e.g. 500g)"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
+          <Button variant="outline-primary" onClick={handleAddIngredient}>
+            Add
+          </Button>
+        </InputGroup>
       </div>
 
-      <div style={{ marginTop: '10px' }}>
-        <button type="submit">Save Dish</button>
-        <button type="button" onClick={onCancel}>
+      <div className="d-flex gap-2">
+        <Button variant="success" type="submit" disabled={loading}>
+          {loading ? 'Saving...' : 'Save Dish'}
+        </Button>
+        <Button variant="secondary" onClick={onCancel} disabled={loading}>
           Cancel
-        </button>
+        </Button>
       </div>
-    </form>
+    </Form>
   );
 };
 

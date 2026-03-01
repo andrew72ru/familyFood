@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Button, Form, Table, Alert, InputGroup } from 'react-bootstrap';
 import { Ingredient } from '../types/Dish';
 import { fetchApi } from '../api';
+import Pagination from './Pagination';
 
 const IngredientManager: React.FC = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -83,97 +85,128 @@ const IngredientManager: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="mb-5">
       <h3>Ingredients</h3>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
-      <form onSubmit={handleCreate}>
-        <input
-          value={newIngredientName}
-          onChange={(e) => setNewIngredientName(e.target.value)}
-          placeholder="New ingredient name"
-          required
-        />
-        <input
-          type="number"
-          value={newIngredientPrice}
-          onChange={(e) =>
-            setNewIngredientPrice(e.target.value === '' ? '' : Number(e.target.value))
-          }
-          placeholder="Price"
-        />
-        <input
-          value={newIngredientUnit}
-          onChange={(e) => setNewIngredientUnit(e.target.value)}
-          placeholder="Unit"
-        />
-        <button type="submit">Add Ingredient</button>
-      </form>
+      <Form onSubmit={handleCreate} className="mb-4">
+        <InputGroup>
+          <Form.Control
+            value={newIngredientName}
+            onChange={(e) => setNewIngredientName(e.target.value)}
+            placeholder="New ingredient name"
+            required
+          />
+          <Form.Control
+            type="number"
+            value={newIngredientPrice}
+            onChange={(e) =>
+              setNewIngredientPrice(e.target.value === '' ? '' : Number(e.target.value))
+            }
+            placeholder="Price"
+          />
+          <Form.Control
+            value={newIngredientUnit}
+            onChange={(e) => setNewIngredientUnit(e.target.value)}
+            placeholder="Unit"
+          />
+          <Button type="submit" variant="primary">
+            Add
+          </Button>
+        </InputGroup>
+      </Form>
 
-      <ul>
-        {ingredients.map((ing) => (
-          <li key={ing['@id']}>
-            {editingId === ing['@id'] ? (
-              <form onSubmit={handleUpdate} style={{ display: 'inline' }}>
-                <input
-                  value={editingName}
-                  onChange={(e) => setEditingName(e.target.value)}
-                  required
-                />
-                <input
-                  type="number"
-                  value={editingPrice}
-                  onChange={(e) =>
-                    setEditingPrice(e.target.value === '' ? '' : Number(e.target.value))
-                  }
-                  placeholder="Price"
-                />
-                <input
-                  value={editingUnit}
-                  onChange={(e) => setEditingUnit(e.target.value)}
-                  placeholder="Unit"
-                />
-                <button type="submit">Save</button>
-                <button type="button" onClick={() => setEditingId(null)}>
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <>
-                {ing.name}{' '}
-                {ing.price?.price && `(${ing.price.price} per ${ing.price.unit || 'unit'})`}
-                <button
-                  onClick={() => {
-                    setEditingId(ing['@id']!);
-                    setEditingName(ing.name!);
-                    setEditingPrice(ing.price?.price ?? '');
-                    setEditingUnit(ing.price?.unit ?? '');
-                  }}
-                >
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(ing['@id']!)}>Delete</button>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Unit</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ingredients.map((ing) => (
+            <tr key={ing['@id']}>
+              {editingId === ing['@id'] ? (
+                <>
+                  <td>
+                    <Form.Control
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      required
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      value={editingPrice}
+                      onChange={(e) =>
+                        setEditingPrice(e.target.value === '' ? '' : Number(e.target.value))
+                      }
+                      placeholder="Price"
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      value={editingUnit}
+                      onChange={(e) => setEditingUnit(e.target.value)}
+                      placeholder="Unit"
+                    />
+                  </td>
+                  <td>
+                    <Button variant="success" size="sm" onClick={handleUpdate} className="me-2">
+                      Save
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setEditingId(null)}>
+                      Cancel
+                    </Button>
+                  </td>
+                </>
+              ) : (
+                <>
+                  <td>{ing.name}</td>
+                  <td>{ing.price?.price ?? '-'}</td>
+                  <td>{ing.price?.unit ?? '-'}</td>
+                  <td>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => {
+                        setEditingId(ing['@id']!);
+                        setEditingName(ing.name!);
+                        setEditingPrice(ing.price?.price ?? '');
+                        setEditingUnit(ing.price?.unit ?? '');
+                      }}
+                      className="me-2"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => handleDelete(ing['@id']!)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
-      <div style={{ marginTop: '20px' }}>
-        <button disabled={page <= 1} onClick={() => setPage((prev) => prev - 1)}>
-          Previous
-        </button>
-        <span style={{ margin: '0 10px' }}>Page {page}</span>
-        <button
-          disabled={ingredients.length < 30 && page * 30 >= totalItems}
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          Next
-        </button>
-        <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
-          Total items: {totalItems}
-        </div>
-      </div>
+      <Pagination
+        currentPage={page}
+        totalItems={totalItems}
+        itemsPerPage={30}
+        onPageChange={setPage}
+      />
     </div>
   );
 };
