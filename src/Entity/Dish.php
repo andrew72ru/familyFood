@@ -53,11 +53,18 @@ class Dish
     #[ORM\OneToMany(targetEntity: RecipeComment::class, mappedBy: 'dish')]
     private Collection $recipeComments;
 
+    /**
+     * @var Collection<int, Tag>
+     */
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'dishes')]
+    private Collection $tags;
+
     public function __construct()
     {
         $this->recipe = new Recipe();
         $this->dishIngredients = new ArrayCollection();
         $this->recipeComments = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): int | null
@@ -181,6 +188,30 @@ class Dish
                 $recipeComment->setDish(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
 
         return $this;
     }

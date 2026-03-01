@@ -9,7 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Dish>
  */
-class DishRepository extends ServiceEntityRepository
+final class DishRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

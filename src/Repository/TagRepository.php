@@ -2,17 +2,17 @@
 
 namespace App\Repository;
 
-use App\Entity\DishIngredient;
+use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<DishIngredient>
+ * @extends ServiceEntityRepository<Tag>
  */
-final class DishIngredientRepository extends ServiceEntityRepository
+final class TagRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, DishIngredient::class);
+        parent::__construct($registry, Tag::class);
     }
 }
