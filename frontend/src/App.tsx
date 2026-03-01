@@ -13,9 +13,16 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
+        <Navbar bg="dark" variant="dark" expand="lg" className="mb-4 shadow-sm" sticky="top">
           <Container>
-            <Navbar.Brand as={Link} to="/">
+            <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+              <img
+                alt="Family Food Logo"
+                src="/icon.svg"
+                width="30"
+                height="30"
+                className="d-inline-block align-top me-2"
+              />
               Family Food
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />

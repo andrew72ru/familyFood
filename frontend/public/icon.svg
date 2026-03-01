@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Circle Background -->
+  <circle cx="256" cy="256" r="240" fill="#f05a28"/>
+
+  <!-- Chef Hat / Steam (Abstract) -->
+  <path d="M256 120c-50 0-90 40-90 90 0 20 5 35 15 50h150c10-15 15-30 15-50 0-50-40-90-90-90z" fill="white"/>
+
+  <!-- Plate / Bowl -->
+  <path d="M120 280h272c0 60-60 112-136 112s-136-52-136-112z" fill="white"/>
+
+  <!-- Utensils (Fork and Spoon cross) -->
+  <path d="M210 320l-30 30c-5 5-5 12 0 17l10 10c5 5 12 5 17 0l30-30-27-27z" fill="#f05a28"/>
+  <path d="M302 320l30 30c5 5 5 12 0 17l-10 10c-5 5-12 5-17 0l-30-30 27-27z" fill="#f05a28"/>
+</svg>
