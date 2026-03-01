@@ -23,6 +23,12 @@ export interface Recipe {
   text?: string;
 }
 
+export interface Tag {
+  '@id'?: string;
+  id?: number;
+  name?: string;
+}
+
 export interface Dish {
   '@id'?: string;
   id?: number;
@@ -32,4 +38,5 @@ export interface Dish {
   updatedAt?: string;
   recipe?: Recipe;
   dishIngredients?: DishIngredient[] | string[];
+  tags?: Tag[] | string[];
 }

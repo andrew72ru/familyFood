@@ -4,6 +4,7 @@ import { Container, Nav, Navbar } from 'react-bootstrap';
 import './App.css';
 import DishList from './components/DishList';
 import IngredientManager from './components/IngredientManager';
+import TagManager from './components/TagManager';
 import DishDetail from './components/DishDetail';
 
 function App() {
@@ -24,6 +25,9 @@ function App() {
                 <Nav.Link as={NavLink} to="/ingredients">
                   Ingredients
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/tags">
+                  Tags
+                </Nav.Link>
               </Nav>
             </Navbar.Collapse>
           </Container>
@@ -35,6 +39,7 @@ function App() {
             <Route path="/dishes" element={<DishList />} />
             <Route path="/dishes/:id" element={<DishDetail />} />
             <Route path="/ingredients" element={<IngredientManager />} />
+            <Route path="/tags" element={<TagManager />} />
           </Routes>
         </Container>
       </div>

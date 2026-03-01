@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Button, Form, Table, Alert, InputGroup } from 'react-bootstrap';
+import { Button, Form, Table, InputGroup } from 'react-bootstrap';
 import { Ingredient } from '../types/Dish';
 import { fetchApi } from '../api';
 import Pagination from './Pagination';
+import ErrorDisplay from './ErrorDisplay';
 
 const IngredientManager: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,7 +16,7 @@ const IngredientManager: React.FC = () => {
   const [editingName, setEditingName] = useState('');
   const [editingPrice, setEditingPrice] = useState<number | ''>('');
   const [editingUnit, setEditingUnit] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any | null>(null);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const searchTerm = searchParams.get('search') || '';
@@ -31,7 +32,7 @@ const IngredientManager: React.FC = () => {
       setIngredients(data['hydra:member'] || data['member'] || []);
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
     }
   }, [page, searchTerm]);
 
@@ -78,7 +79,7 @@ const IngredientManager: React.FC = () => {
       setNewIngredientUnit('');
       fetchIngredients();
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
     }
   };
 
@@ -88,7 +89,7 @@ const IngredientManager: React.FC = () => {
       await fetchApi(id, { method: 'DELETE' });
       fetchIngredients();
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
     }
   };
 
@@ -108,18 +109,14 @@ const IngredientManager: React.FC = () => {
       setEditingId(null);
       fetchIngredients();
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
     }
   };
 
   return (
     <div className="mb-5">
       <h3>Ingredients</h3>
-      {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
+      <ErrorDisplay error={error} onClose={() => setError(null)} className="mb-4" />
 
       <div className="mb-4">
         <Form onSubmit={handleSearch}>

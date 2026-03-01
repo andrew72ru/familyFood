@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, ListGroup, InputGroup, Alert, Spinner, Tabs, Tab } from 'react-bootstrap';
+import { Form, Button, ListGroup, InputGroup, Spinner, Tabs, Tab, Badge } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import { Dish, Ingredient, DishIngredient } from '../types/Dish';
+import { Dish, Ingredient, DishIngredient, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
+import ErrorDisplay from './ErrorDisplay';
 
 interface DishFormProps {
   dish?: Dish;
@@ -18,36 +19,66 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   const [selectedIngredient, setSelectedIngredient] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const [dishIngredients, setDishIngredients] = useState<DishIngredient[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [tags, setTags] = useState<Tag[]>((dish?.tags as Tag[]) || []);
+  const [tagInput, setTagInput] = useState('');
+  const [suggestedTags, setSuggestedTags] = useState<Tag[]>([]);
+  const [error, setError] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchSuggestedTags = async () => {
+      if (tagInput.trim().length > 1) {
+        try {
+          const data = await fetchApi(`/api/tags?search[name]=${encodeURIComponent(tagInput)}`);
+          setSuggestedTags(data['hydra:member'] || data['member'] || []);
+        } catch (err) {
+          console.error('Error fetching tags', err);
+        }
+      } else {
+        setSuggestedTags([]);
+      }
+    };
+    const timer = setTimeout(fetchSuggestedTags, 300);
+    return () => clearTimeout(timer);
+  }, [tagInput]);
 
   useEffect(() => {
     fetchApi('/api/ingredients').then((data) =>
       setIngredients(data['hydra:member'] || data['member'] || []),
     );
-    if (dish && dish.dishIngredients) {
-      const loadDishIngredients = async () => {
+    if (dish) {
+      const loadData = async () => {
         setLoading(true);
-        const fullIngredients = await Promise.all(
-          (dish.dishIngredients as any[]).map(async (di: any) => {
-            if (typeof di === 'string') {
-              const diData = await fetchApi(di);
-              if (typeof diData.ingredient === 'string') {
-                diData.ingredient = await fetchApi(diData.ingredient);
+        // Load tags if they are IRIs
+        if (dish.tags && dish.tags.length > 0) {
+          const fullTags = await Promise.all(
+            dish.tags.map(async (t: any) => (typeof t === 'string' ? await fetchApi(t) : t)),
+          );
+          setTags(fullTags);
+        }
+
+        if (dish.dishIngredients) {
+          const fullIngredients = await Promise.all(
+            (dish.dishIngredients as any[]).map(async (di: any) => {
+              if (typeof di === 'string') {
+                const diData = await fetchApi(di);
+                if (typeof diData.ingredient === 'string') {
+                  diData.ingredient = await fetchApi(diData.ingredient);
+                }
+                return diData;
               }
-              return diData;
-            }
-            if (di.ingredient && typeof di.ingredient === 'string') {
-              const ingredientData = await fetchApi(di.ingredient);
-              return { ...di, ingredient: ingredientData };
-            }
-            return di;
-          }),
-        );
-        setDishIngredients(fullIngredients);
+              if (di.ingredient && typeof di.ingredient === 'string') {
+                const ingredientData = await fetchApi(di.ingredient);
+                return { ...di, ingredient: ingredientData };
+              }
+              return di;
+            }),
+          );
+          setDishIngredients(fullIngredients);
+        }
         setLoading(false);
       };
-      loadDishIngredients();
+      loadData();
     }
   }, [dish]);
 
@@ -69,15 +100,58 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   const handleRemoveIngredient = (index: number) => {
     setDishIngredients(dishIngredients.filter((_, i) => i !== index));
   };
+  const handleAddTag = (tag: Tag) => {
+    if (!tags.find((t) => t.name === tag.name)) {
+      setTags([...tags, tag]);
+    }
+    setTagInput('');
+    setSuggestedTags([]);
+  };
+
+  const handleCreateTag = () => {
+    const tagName = tagInput.trim();
+    if (tagName && !tags.find((t) => t.name?.toLowerCase() === tagName.toLowerCase())) {
+      setTags([...tags, { name: tagName }]);
+    }
+    setTagInput('');
+    setSuggestedTags([]);
+  };
+
+  const handleRemoveTag = (tagName: string) => {
+    setTags(tags.filter((t) => t.name !== tagName));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
+
+      // Handle tags: find or create
+      const finalTagIris = await Promise.all(
+        tags.map(async (tag) => {
+          if (tag['@id']) return tag['@id'];
+          // Try to find tag by name again just in case
+          const data = await fetchApi(`/api/tags?search[name]=${encodeURIComponent(tag.name!)}`);
+          const existingTags = data['hydra:member'] || data['member'] || [];
+          const match = existingTags.find(
+            (t: Tag) => t.name?.toLowerCase() === tag.name?.toLowerCase(),
+          );
+          if (match) return match['@id'];
+
+          // Create new tag
+          const newTag = await fetchApi('/api/tags', {
+            method: 'POST',
+            body: JSON.stringify({ name: tag.name }),
+          });
+          return newTag['@id'];
+        }),
+      );
+
       const payload: any = {
         name,
         description,
         recipe: { text: recipeText },
+        tags: finalTagIris,
       };
 
       let savedDish: Dish;
@@ -110,7 +184,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
       setLoading(false);
       onSave();
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
       setLoading(false);
     }
   };
@@ -126,11 +200,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   return (
     <Form onSubmit={handleSubmit} className="p-2">
       <h4 className="mb-3">{dish ? 'Edit Dish' : 'Create Dish'}</h4>
-      {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
+      <ErrorDisplay error={error} onClose={() => setError(null)} className="mb-3" />
 
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
@@ -151,6 +221,61 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Enter dish description"
         />
+      </Form.Group>
+
+      <Form.Group className="mb-4">
+        <Form.Label>Tags</Form.Label>
+        <div className="mb-2">
+          {tags.map((tag, idx) => (
+            <Badge key={idx} bg="info" className="me-2 p-2">
+              {tag.name}
+              <span
+                className="ms-2"
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleRemoveTag(tag.name!)}
+              >
+                &times;
+              </span>
+            </Badge>
+          ))}
+        </div>
+        <div className="position-relative">
+          <InputGroup>
+            <Form.Control
+              type="text"
+              placeholder="Type tag name..."
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleCreateTag();
+                }
+              }}
+            />
+            <Button variant="outline-primary" onClick={handleCreateTag}>
+              Add
+            </Button>
+          </InputGroup>
+          {suggestedTags.length > 0 && (
+            <ListGroup
+              className="position-absolute w-100 shadow"
+              style={{ zIndex: 1000, top: '100%' }}
+            >
+              {suggestedTags.map((tag) => (
+                <ListGroup.Item
+                  key={tag['@id']}
+                  action
+                  onClick={() => handleAddTag(tag)}
+                  className="py-2"
+                >
+                  {tag.name}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+        </div>
+        <Form.Text className="text-muted">Type and press Enter to add a new tag.</Form.Text>
       </Form.Group>
 
       <Form.Group className="mb-3">

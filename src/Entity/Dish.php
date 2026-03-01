@@ -11,52 +11,62 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation\Timestampable;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ORM\Entity(repositoryClass: DishRepository::class)]
 #[API\GetCollection(
+    normalizationContext: ['groups' => ['dish:read']],
     parameters: [
         'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
     ]
 )]
-#[API\Get, API\Post, API\Patch, API\Delete]
+#[API\Get(normalizationContext: ['groups' => ['dish:read']]), API\Post, API\Patch(denormalizationContext: ['groups' => ['dish:write']]), API\Delete]
 class Dish
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    #[Groups(['dish:read'])]
     private int | null $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\NotBlank]
+    #[Groups(['dish:read', 'dish:write'])]
     private string | null $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['dish:read', 'dish:write'])]
     private string | null $description = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Timestampable(on: 'create')]
+    #[Groups(['dish:read'])]
     private \DateTimeImmutable | null $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Timestampable(on: 'update')]
+    #[Groups(['dish:read'])]
     private \DateTimeImmutable | null $updatedAt = null;
 
     #[ORM\Embedded]
+    #[Groups(['dish:read', 'dish:write'])]
     private Recipe $recipe;
 
     /**
      * @var Collection<int, DishIngredient>
      */
     #[ORM\OneToMany(targetEntity: DishIngredient::class, mappedBy: 'dish', orphanRemoval: true)]
+    #[Groups(['dish:read'])]
     private Collection $dishIngredients;
 
     /**
      * @var Collection<int, RecipeComment>
      */
     #[ORM\OneToMany(targetEntity: RecipeComment::class, mappedBy: 'dish')]
+    #[Groups(['dish:read'])]
     private Collection $recipeComments;
 
     /**
      * @var Collection<int, Tag>
      */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'dishes')]
+    #[Groups(['dish:read', 'dish:write'])]
     private Collection $tags;
 
     public function __construct()

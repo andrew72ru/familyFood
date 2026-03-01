@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup } from 'react-bootstrap';
-import { Dish } from '../types/Dish';
+import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup, Badge } from 'react-bootstrap';
+import { Dish, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import DishForm from './DishForm';
 import Pagination from './Pagination';
+import ErrorDisplay from './ErrorDisplay';
 
 const DishList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [dishes, setDishes] = useState<Dish[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [editingDish, setEditingDish] = useState<Dish | null | 'new'>(null);
   const [page, setPage] = useState(1);
@@ -30,7 +31,7 @@ const DishList: React.FC = () => {
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
       setLoading(false);
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
       setLoading(false);
     }
   }, [page, searchTerm]);
@@ -70,11 +71,7 @@ const DishList: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <Alert variant="danger" className="mt-3">
-        Error: {error}
-      </Alert>
-    );
+    return <ErrorDisplay error={error} />;
   }
 
   return (
@@ -143,6 +140,21 @@ const DishList: React.FC = () => {
                       ? `${dish.description.substring(0, 100)}...`
                       : dish.description}
                   </Card.Text>
+                  {dish.tags && dish.tags.length > 0 && (
+                    <div className="mt-2">
+                      {(dish.tags as Tag[]).map((tag, idx) => (
+                        <Badge
+                          key={idx}
+                          bg="info"
+                          pill
+                          className="me-1"
+                          style={{ fontSize: '0.7rem' }}
+                        >
+                          {tag.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </Card.Body>
               </Card>
             </Col>

@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Card, ListGroup, Spinner, Alert, Container, Row, Col } from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  ListGroup,
+  Spinner,
+  Alert,
+  Container,
+  Row,
+  Col,
+  Badge,
+} from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
-import { Dish, DishIngredient, Ingredient } from '../types/Dish';
+import { Dish, DishIngredient, Ingredient, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import DishForm from './DishForm';
+import ErrorDisplay from './ErrorDisplay';
 
 const DishDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +23,7 @@ const DishDetail: React.FC = () => {
   const [dish, setDish] = useState<Dish | null>(null);
   const [dishIngredients, setDishIngredients] = useState<DishIngredient[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   const fetchDish = React.useCallback(async () => {
@@ -48,7 +59,7 @@ const DishDetail: React.FC = () => {
 
       setLoading(false);
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
       setLoading(false);
     }
   }, [id]);
@@ -63,7 +74,7 @@ const DishDetail: React.FC = () => {
       await fetchApi(dish['@id'], { method: 'DELETE' });
       navigate('/dishes');
     } catch (err: any) {
-      setError(err.message);
+      setError(err);
     }
   };
 
@@ -78,11 +89,7 @@ const DishDetail: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <Alert variant="danger" className="mt-3">
-        Error: {error}
-      </Alert>
-    );
+    return <ErrorDisplay error={error} onClose={() => setError(null)} />;
   }
 
   if (!dish) {
@@ -116,7 +123,18 @@ const DishDetail: React.FC = () => {
         <Col md={10} lg={8}>
           <Card className="shadow-sm">
             <Card.Header className="d-flex justify-content-between align-items-center bg-white py-3">
-              <h2 className="mb-0">{dish.name}</h2>
+              <div>
+                <h2 className="mb-1">{dish.name}</h2>
+                {dish.tags && dish.tags.length > 0 && (
+                  <div>
+                    {(dish.tags as Tag[]).map((tag, idx) => (
+                      <Badge key={idx} bg="info" pill className="me-1">
+                        {tag.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Button variant="outline-secondary" size="sm" onClick={() => navigate('/dishes')}>
                 Back to List
               </Button>

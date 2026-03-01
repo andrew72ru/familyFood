@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata as API;
 use App\Repository\TagRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
@@ -9,17 +10,27 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Symfony\Component\Serializer\Annotation\Groups;
+
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[API\ApiResource]
-#[API\GetCollection, API\Get, API\Post, API\Patch, API\Delete]
+#[API\Get(normalizationContext: ['groups' => ['dish:read']]), API\Post, API\Patch, API\Delete]
+#[API\GetCollection(
+    normalizationContext: ['groups' => ['dish:read']],
+    parameters: [
+        'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
+    ]
+)]
 #[UniqueEntity('name')]
 class Tag
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    #[Groups(['dish:read'])]
     private int | null $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
+    #[Groups(['dish:read'])]
     private string | null $name = null;
 
     /**
