@@ -1,7 +1,7 @@
 services:
 ###> doctrine/doctrine-bundle ###
   database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    image: postgres:${POSTGRES_VERSION:-17}-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app-password}
@@ -16,6 +16,37 @@ services:
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
+
+  restore:
+    image: postgres:${POSTGRES_VERSION:-17}-alpine
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      PGHOST: database
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-app}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-app-password}
+      PGDATABASE: ${POSTGRES_DB:-app}
+    volumes:
+      - ./.docker/dev/pgsql:/backups:ro
+    entrypoint: [ "sh", "-c" ]
+    command:
+      - |
+        set -e
+        echo "Waiting for Postgres..."
+        until pg_isready -h "$$PGHOST" -p "$$PGPORT" -U "$$PGUSER"; do sleep 1; done
+
+        TABLES_COUNT=$$(psql -tAc "select count(*) from pg_tables where schemaname='public';")
+        if [ "$$TABLES_COUNT" -gt 0 ]; then
+          echo "Database not empty ($$TABLES_COUNT tables found), skipping restore."
+          exit 0
+        fi
+
+        echo "Restoring dump..."
+        pg_restore --clean --if-exists --no-owner --no-privileges -d "$$PGDATABASE" "/backups/pg_dump.dump"
+        echo "Restore done."
+    restart: no
 
 volumes:
 ###> doctrine/doctrine-bundle ###
