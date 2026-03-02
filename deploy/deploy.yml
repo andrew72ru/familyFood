@@ -23,16 +23,44 @@
         release_timestamp: "{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}"
       run_once: true
 
-    - name: Ensure deployment directories exist
+    - name: Ensure deployment and shared directories exist
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ item.path }}"
         state: directory
         owner: "{{ ansible_user }}"
         group: www-data
-        mode: '0775'
+        mode: "{{ item.mode | default('0775') }}"
       loop:
-        - "{{ releases_dir }}"
-        - "{{ shared_dir }}"
+        - { path: "{{ releases_dir }}" }
+        - { path: "{{ shared_dir }}" }
+        - { path: "{{ deploy_root }}/var", mode: '0775' }
+        - { path: "{{ deploy_root }}/var/log", mode: '0777' }
+      become: yes
+
+    - name: Set ACLs on shared var directory
+      ansible.builtin.acl:
+        path: "{{ deploy_root }}/var"
+        entity: "{{ item }}"
+        etype: user
+        permissions: rwx
+        state: present
+        recursive: yes
+      loop:
+        - "{{ ansible_user }}"
+        - www-data
+      become: yes
+
+    - name: Set default ACLs on shared var directory
+      ansible.builtin.acl:
+        path: "{{ deploy_root }}/var"
+        entity: "{{ item }}"
+        etype: user
+        permissions: rwx
+        state: present
+        default: yes
+      loop:
+        - "{{ ansible_user }}"
+        - www-data
       become: yes
 
     - name: Clone source code from GitHub
@@ -50,6 +78,9 @@
           DATABASE_URL="postgresql://{{ db_user }}:{{ db_password }}@127.0.0.1:5432/{{ db_name }}?serverVersion={{ postgresql_version }}&charset=utf8"
           MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
           CORS_ALLOW_ORIGIN='^https?://{{ app_domain | replace('.', '\.') }}(:[0-9]+)?$'
+          JWT_SECRET_KEY={{ jwt_private_key }}
+          JWT_PUBLIC_KEY={{ jwt_public_key }}
+          JWT_PASSPHRASE={{ jwt_passphrase }}
         dest: "{{ shared_dir }}/.env.local"
         owner: "{{ ansible_user }}"
         group: www-data
@@ -72,6 +103,54 @@
         mode: '0644'
       become: yes
 
+    - name: Ensure var directory exists and symlink log directory
+      block:
+        - name: Create var directory
+          ansible.builtin.file:
+            path: "{{ release_path }}/var"
+            state: directory
+            owner: "{{ ansible_user }}"
+            group: www-data
+            mode: '0777'
+
+        - name: Set ACLs on release var directory
+          ansible.builtin.acl:
+            path: "{{ release_path }}/var"
+            entity: "{{ item }}"
+            etype: user
+            permissions: rwx
+            state: present
+            recursive: yes
+          loop:
+            - "{{ ansible_user }}"
+            - www-data
+
+        - name: Set default ACLs on release var directory
+          ansible.builtin.acl:
+            path: "{{ release_path }}/var"
+            entity: "{{ item }}"
+            etype: user
+            permissions: rwx
+            state: present
+            default: yes
+          loop:
+            - "{{ ansible_user }}"
+            - www-data
+
+        - name: Remove existing log directory if it is not a symlink
+          ansible.builtin.file:
+            path: "{{ release_path }}/var/log"
+            state: absent
+          when: not ansible_check_mode
+
+        - name: Symlink shared log directory to release
+          ansible.builtin.file:
+            src: "{{ deploy_root }}/var/log"
+            dest: "{{ release_path }}/var/log"
+            state: link
+            force: yes
+      become: yes
+
     - name: Install Composer dependencies
       community.general.composer:
         working_dir: "{{ release_path }}"
@@ -86,16 +165,6 @@
       ansible.builtin.shell: "npm run build"
       args:
         chdir: "{{ release_path }}/frontend"
-
-    - name: Ensure var directory exists and has correct permissions
-      ansible.builtin.file:
-        path: "{{ release_path }}/var"
-        state: directory
-        owner: "{{ ansible_user }}"
-        group: www-data
-        mode: '0777'
-        recurse: yes
-      become: yes
 
     - name: Install Symfony assets
       ansible.builtin.shell: "php bin/console assets:install public"

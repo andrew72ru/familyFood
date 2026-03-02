@@ -6,23 +6,41 @@
     group: www-data
     mode: '0775'
 
-- name: Create shared directory for logs and cache
-  file:
-    path: "{{ app_root }}/var"
+- name: Create shared directory for logs
+  ansible.builtin.file:
+    path: "{{ item }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: www-data
     mode: '0777'
-    recurse: yes
+  loop:
+    - "{{ app_root }}/var"
+    - "{{ app_root }}/var/log"
 
-- name: Set ACL for Symfony directories
-  acl:
+- name: Set ACLs for Symfony var directory
+  ansible.builtin.acl:
     path: "{{ app_root }}/var"
-    entity: www-data
+    entity: "{{ item }}"
     etype: user
     permissions: rwx
     state: present
     recursive: yes
+  loop:
+    - "{{ ansible_user }}"
+    - www-data
+  ignore_errors: "{{ ansible_check_mode }}"
+
+- name: Set default ACLs for Symfony var directory
+  ansible.builtin.acl:
+    path: "{{ app_root }}/var"
+    entity: "{{ item }}"
+    etype: user
+    permissions: rwx
+    state: present
+    default: yes
+  loop:
+    - "{{ ansible_user }}"
+    - www-data
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Copy logrotate configuration for Symfony logs
