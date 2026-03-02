@@ -1,0 +1,11 @@
+// Custom Bootstrap overrides
+// 1. Remove rounded corners
+$enable-rounded: false;
+
+// 2. Darken primary color
+// Default Bootstrap primary is #0d6efd
+$primary: darken(#0d6efd, 20%);
+$danger: darken(#dc3545, 20);
+
+// Import Bootstrap
+@import "bootstrap/scss/bootstrap";
