@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup, Badge } from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  Spinner,
+  Alert,
+  Row,
+  Col,
+  Form,
+  InputGroup,
+  Badge,
+  Collapse,
+} from 'react-bootstrap';
 import { Dish, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import Pagination from './Pagination';
@@ -9,14 +20,26 @@ import ErrorDisplay from './ErrorDisplay';
 const DishList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [dishes, setDishes] = useState<Dish[]>([]);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [error, setError] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const searchTerm = searchParams.get('search') || '';
+  const selectedTags = React.useMemo(() => searchParams.getAll('tags[]'), [searchParams]);
   const [searchInput, setSearchInput] = useState(searchTerm);
+  const [isTagsOpen, setIsTagsOpen] = useState(false);
 
   const navigate = useNavigate();
+
+  const fetchAvailableTags = async () => {
+    try {
+      const data = await fetchApi('/api/tags');
+      setAvailableTags(data['hydra:member'] || data['member'] || []);
+    } catch (err) {
+      console.error('Failed to fetch tags', err);
+    }
+  };
 
   const fetchDishes = React.useCallback(async () => {
     try {
@@ -25,16 +48,25 @@ const DishList: React.FC = () => {
       if (searchTerm) {
         url += `&search[name]=${encodeURIComponent(searchTerm)}`;
       }
+      if (selectedTags.length > 0) {
+        selectedTags.forEach((tagIri) => {
+          url += `&tags[]=${encodeURIComponent(tagIri)}`;
+        });
+      }
       const data = await fetchApi(url);
       const fetchedDishes = data['hydra:member'] || data['member'] || [];
       setDishes(fetchedDishes);
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);
-      setLoading(false);
     } catch (err: any) {
       setError(err);
+    } finally {
       setLoading(false);
     }
-  }, [page, searchTerm]);
+  }, [page, searchTerm, selectedTags]);
+
+  useEffect(() => {
+    fetchAvailableTags();
+  }, []);
 
   useEffect(() => {
     setSearchInput(searchTerm);
@@ -46,11 +78,30 @@ const DishList: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchInput) {
-      setSearchParams({ search: searchInput });
+    const nextParams = new URLSearchParams();
+    if (searchInput) nextParams.set('search', searchInput);
+    selectedTags.forEach((tag) => nextParams.append('tags[]', tag));
+
+    setSearchParams(nextParams);
+    setPage(1);
+  };
+
+  const handleTagToggle = (tagIri: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete('page'); // Reset page when filtering
+
+    const currentTags = nextParams.getAll('tags[]');
+    if (currentTags.includes(tagIri)) {
+      // Remove tag
+      const remainingTags = currentTags.filter((t) => t !== tagIri);
+      nextParams.delete('tags[]');
+      remainingTags.forEach((t) => nextParams.append('tags[]', t));
     } else {
-      setSearchParams({});
+      // Add tag
+      nextParams.append('tags[]', tagIri);
     }
+
+    setSearchParams(nextParams);
     setPage(1);
   };
 
@@ -60,7 +111,7 @@ const DishList: React.FC = () => {
     setPage(1);
   };
 
-  if (loading) {
+  if (loading && dishes.length === 0) {
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" role="status">
@@ -100,6 +151,38 @@ const DishList: React.FC = () => {
             </Button>
           </InputGroup>
         </Form>
+      </div>
+
+      <div className="mb-4">
+        <Button
+          variant="link"
+          onClick={() => setIsTagsOpen(!isTagsOpen)}
+          aria-controls="tags-collapse"
+          aria-expanded={isTagsOpen}
+          className="p-0 mb-2 text-decoration-none"
+        >
+          {isTagsOpen ? 'Hide tags' : 'Show tags'}
+        </Button>
+        <Collapse in={isTagsOpen}>
+          <div id="tags-collapse">
+            <div className="d-flex flex-wrap gap-2">
+              {availableTags.map((tag) => {
+                const tagIri = tag['@id'] || `/api/tags/${tag.id}`;
+                const isActive = selectedTags.includes(tagIri);
+                return (
+                  <Button
+                    key={tagIri}
+                    variant={isActive ? 'primary' : 'outline-primary'}
+                    size="sm"
+                    onClick={() => handleTagToggle(tagIri)}
+                  >
+                    {tag.name}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </Collapse>
       </div>
 
       {dishes.length === 0 ? (
