@@ -22,3 +22,44 @@
     - "22"
     - "80"
     - "443"
+
+- name: Check swap status
+  ansible.builtin.command: swapon --show
+  register: swapon_show
+  changed_when: false
+  check_mode: no
+
+- name: Create swap file
+  ansible.builtin.command: fallocate -l {{ swap_size }} /swapfile
+  args:
+    creates: /swapfile
+  when: swap_size is defined
+
+- name: Set swap file permissions
+  ansible.builtin.file:
+    path: /swapfile
+    mode: '0600'
+  when: swap_size is defined
+
+- name: Format swap file
+  ansible.builtin.command: mkswap /swapfile
+  when:
+    - swap_size is defined
+    - '"/swapfile" not in swapon_show.stdout'
+
+- name: Add swap file to fstab
+  ansible.builtin.mount:
+    path: none
+    src: /swapfile
+    fstype: swap
+    opts: sw
+    passno: "0"
+    dump: "0"
+    state: present
+  when: swap_size is defined
+
+- name: Activate swap file
+  ansible.builtin.command: swapon /swapfile
+  when:
+    - swap_size is defined
+    - '"/swapfile" not in swapon_show.stdout'

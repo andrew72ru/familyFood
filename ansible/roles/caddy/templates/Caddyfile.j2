@@ -1,28 +1,27 @@
 {{ app_domain }} {
-    root * {{ app_root }}/frontend/build
-    file_server
+    # If app_root doesn't end in /current, we are likely in provisioning
+    # Deployment always uses /current
+    {% set project_dir = app_root if app_root.endswith('/current') else app_root ~ '/current' %}
 
     # Handle Symfony API and assets
     handle /api* {
-        root * {{ app_root }}/public
+        root * {{ project_dir }}/public
         php_fastcgi unix//var/run/php/php{{ '8.4' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky') else php_version }}-fpm.sock
     }
 
     handle /bundles* {
-        root * {{ app_root }}/public
+        root * {{ project_dir }}/public
         file_server
     }
 
-    # Handle Symfony entry point (if needed)
-    handle /index.php* {
-        root * {{ app_root }}/public
-        php_fastcgi unix//var/run/php/php{{ '8.4' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky') else php_version }}-fpm.sock
+    # Handle React frontend
+    handle {
+        root * {{ project_dir }}/frontend/build
+        try_files {path} /index.html
+        file_server
     }
 
     log {
         output file /var/log/caddy/{{ app_name }}_access.log
     }
-
-    # Fallback for React Router (Single Page Application)
-    try_files {path} /index.html
 }

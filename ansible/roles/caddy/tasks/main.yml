@@ -29,6 +29,13 @@
     state: present
     update_cache: "{{ 'yes' if ansible_distribution_release == 'plucky' else 'no' }}"
 
+- name: Add caddy user to www-data group
+  user:
+    name: caddy
+    groups: www-data
+    append: yes
+  notify: Restart Caddy
+
 - name: Create Caddyfile
   template:
     src: Caddyfile.j2
