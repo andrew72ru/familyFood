@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter;
 use ApiPlatform\Metadata as API;
 use App\Repository\DishRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
@@ -15,7 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection(
     normalizationContext: ['groups' => ['dish:read']],
     parameters: [
-        'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
+        'search[:property]' => new API\QueryParameter(filter: new Filter\PartialSearchFilter(), properties: ['name']),
+        'tags' => new API\QueryParameter(filter: new Filter\IriFilter(), property: 'tags'),
     ]
 )]
 #[API\Get(normalizationContext: ['groups' => ['dish:read']]), API\Post, API\Patch(denormalizationContext: ['groups' => ['dish:write']]), API\Delete]
