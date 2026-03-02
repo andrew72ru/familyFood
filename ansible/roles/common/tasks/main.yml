@@ -10,15 +10,15 @@
       - curl
       - unzip
       - build-essential
-      - software-properties-common
+      - lsb-release
       - acl
     state: present
 
 - name: Setup firewall (UFW)
   ufw:
     rule: allow
-    name: "{{ item }}"
+    port: "{{ item }}"
   loop:
-    - OpenSSH
-    - HTTP
-    - HTTPS
+    - "22"
+    - "80"
+    - "443"

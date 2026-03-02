@@ -23,5 +23,6 @@
     permissions: rwx
     state: present
     recursive: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - import_tasks: messenger.yml

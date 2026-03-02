@@ -1,31 +1,72 @@
-- name: Add Ondrej PHP PPA
-  apt_repository:
-    repo: 'ppa:ondrej/php'
-    state: present
-
-- name: Install PHP {{ php_version }} and extensions
+- name: Install dependencies for repository management
   apt:
     name:
-      - "php{{ php_version }}-fpm"
-      - "php{{ php_version }}-cli"
-      - "php{{ php_version }}-common"
-      - "php{{ php_version }}-mbstring"
-      - "php{{ php_version }}-xml"
-      - "php{{ php_version }}-zip"
-      - "php{{ php_version }}-curl"
-      - "php{{ php_version }}-pgsql"
-      - "php{{ php_version }}-intl"
-      - "php{{ php_version }}-gd"
-      - "php{{ php_version }}-bcmath"
-      - "php{{ php_version }}-apcu"
-      - "php{{ php_version }}-opcache"
+      - gnupg
+      - ca-certificates
+      - curl
+      - lsb-release
     state: present
+
+- name: Create keyrings directory
+  file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download PHP repository GPG key
+  shell: |
+    set -o pipefail
+    if [ "{{ ansible_distribution }}" = "Ubuntu" ]; then
+      curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xB8DC7E53946656EFBCE4C1DD71DAEAAB4AD4CAB6' | gpg --dearmor -o /usr/share/keyrings/ondrej-php.gpg
+    else
+      curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/ondrej-php.gpg
+    fi
+  args:
+    executable: /bin/bash
+    creates: /usr/share/keyrings/ondrej-php.gpg
+
+- name: Set distribution release for PHP
+  set_fact:
+    php_dist_release: "{{ 'noble' if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky' else ansible_distribution_release }}"
+
+- name: Add or remove PHP repository
+  apt_repository:
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/ondrej-php.gpg]
+      {% if ansible_distribution == 'Ubuntu' %}
+      https://ppa.launchpadcontent.net/ondrej/php/ubuntu {{ php_dist_release }} main
+      {% else %}
+      https://packages.sury.org/php/ {{ php_dist_release }} main
+      {% endif %}
+    state: "{{ 'absent' if ansible_distribution_release == 'plucky' else 'present' }}"
+    filename: ondrej-php
+
+- name: Install PHP and extensions
+  apt:
+    name:
+      - "{{ 'php-fpm' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-fpm' }}"
+      - "{{ 'php-cli' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-cli' }}"
+      - "{{ 'php-common' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-common' }}"
+      - "{{ 'php-mbstring' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-mbstring' }}"
+      - "{{ 'php-xml' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-xml' }}"
+      - "{{ 'php-zip' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-zip' }}"
+      - "{{ 'php-curl' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-curl' }}"
+      - "{{ 'php-pgsql' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-pgsql' }}"
+      - "{{ 'php-intl' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-intl' }}"
+      - "{{ 'php-gd' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-gd' }}"
+      - "{{ 'php-bcmath' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-bcmath' }}"
+      - "{{ 'php-apcu' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-apcu' }}"
+      - "{{ 'php-opcache' if ansible_distribution_release == 'plucky' else 'php' + php_version + '-opcache' }}"
+    state: present
+    update_cache: "{{ 'yes' if ansible_distribution_release == 'plucky' else 'no' }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Ensure PHP-FPM is running
   service:
-    name: "php{{ php_version }}-fpm"
+    name: "{{ 'php8.4-fpm' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky') else 'php' + php_version + '-fpm' }}"
     state: started
     enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Install Composer
   shell: |

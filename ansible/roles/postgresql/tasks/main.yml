@@ -1,26 +1,48 @@
-- name: Add PostgreSQL apt key
-  apt_key:
-    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+- name: Install dependencies for repository management
+  apt:
+    name:
+      - gnupg
+      - ca-certificates
+      - curl
     state: present
 
-- name: Add PostgreSQL repository
+- name: Create keyrings directory
+  file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download PostgreSQL repository GPG key
+  shell: "curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/postgresql.gpg"
+  args:
+    creates: /usr/share/keyrings/postgresql.gpg
+
+- name: Set distribution release for PostgreSQL
+  set_fact:
+    pg_distribution_release: "{{ 'noble' if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky' else ansible_distribution_release }}"
+
+- name: Add or remove PostgreSQL repository
   apt_repository:
-    repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
-    state: present
+    repo: "deb [signed-by=/usr/share/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt {{ pg_distribution_release }}-pgdg main"
+    state: "{{ 'absent' if ansible_distribution_release == 'plucky' else 'present' }}"
+    filename: postgresql
 
 - name: Install PostgreSQL {{ postgresql_version }}
   apt:
     name:
-      - "postgresql-{{ postgresql_version }}"
-      - "postgresql-client-{{ postgresql_version }}"
+      - "{{ 'postgresql' if ansible_distribution_release == 'plucky' else 'postgresql-' + postgresql_version }}"
+      - "{{ 'postgresql-client' if ansible_distribution_release == 'plucky' else 'postgresql-client-' + postgresql_version }}"
       - python3-psycopg2
     state: present
+    update_cache: "{{ 'yes' if ansible_distribution_release == 'plucky' else 'no' }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Ensure PostgreSQL is running
   service:
     name: postgresql
     state: started
     enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Create PostgreSQL user
   become_user: postgres
@@ -28,9 +50,11 @@
     name: "{{ db_user }}"
     password: "{{ db_password }}"
     role_attr_flags: NOSUPERUSER,CREATEDB
+  when: not ansible_check_mode
 
 - name: Create PostgreSQL database
   become_user: postgres
   postgresql_db:
     name: "{{ db_name }}"
     owner: "{{ db_user }}"
+  when: not ansible_check_mode

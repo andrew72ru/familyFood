@@ -1,17 +1,28 @@
 {{ app_domain }} {
-    root * {{ app_root }}/public
+    root * {{ app_root }}/frontend/build
     file_server
 
-    php_fastcgi unix//var/run/php/php{{ php_version }}-fpm.sock
+    # Handle Symfony API and assets
+    handle /api* {
+        root * {{ app_root }}/public
+        php_fastcgi unix//var/run/php/php{{ '8.4' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky') else php_version }}-fpm.sock
+    }
+
+    handle /bundles* {
+        root * {{ app_root }}/public
+        file_server
+    }
+
+    # Handle Symfony entry point (if needed)
+    handle /index.php* {
+        root * {{ app_root }}/public
+        php_fastcgi unix//var/run/php/php{{ '8.4' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky') else php_version }}-fpm.sock
+    }
 
     log {
         output file /var/log/caddy/{{ app_name }}_access.log
     }
 
-    handle_errors {
-        @404 {
-            expression {err.status_code} == 404
-        }
-        rewrite @404 /index.php
-    }
+    # Fallback for React Router (Single Page Application)
+    try_files {path} /index.html
 }
