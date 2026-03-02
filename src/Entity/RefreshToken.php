@@ -52,7 +52,7 @@ class RefreshToken
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(User | null $user): static
     {
         $this->user = $user;
 

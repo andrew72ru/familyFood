@@ -2,14 +2,14 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\{User};
+use App\Entity\User;
 use App\Repository\RefreshTokenRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Routing\Annotation\Route;
 
-class RefreshTokenController extends AbstractController
+final class RefreshTokenController extends AbstractController
 {
     public function __construct(
         private readonly RefreshTokenRepository $refreshTokenRepository,

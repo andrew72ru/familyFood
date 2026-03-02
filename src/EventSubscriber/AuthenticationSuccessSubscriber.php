@@ -9,7 +9,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Events;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class AuthenticationSuccessSubscriber implements EventSubscriberInterface
+final class AuthenticationSuccessSubscriber implements EventSubscriberInterface
 {
     private const REFRESH_TOKEN_EXPIRATION = 31536000; // 1 year in seconds
 
