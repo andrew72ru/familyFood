@@ -38,7 +38,7 @@ final readonly class ExtractIngredients
                     'id' => $this->promptId,
                     'version' => $this->promptVersion,
                     'variables' => [
-                        'dish' => $recipe,
+                        'text' => $recipe,
                     ],
                 ],
             ],

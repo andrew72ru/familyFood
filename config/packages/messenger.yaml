@@ -10,3 +10,4 @@ framework:
 
         routing:
             'App\Dto\Message\GetRecipeRequestDto': async
+            'App\Dto\Message\ExtractIngredientsRequestDto': async

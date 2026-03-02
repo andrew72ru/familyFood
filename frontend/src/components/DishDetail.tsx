@@ -26,6 +26,7 @@ const DishDetail: React.FC = () => {
   const [error, setError] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isFetchingRecipe, setIsFetchingRecipe] = useState(false);
+  const [isExtractingIngredients, setIsExtractingIngredients] = useState(false);
   const [recipeFeedback, setRecipeFeedback] = useState<string | null>(null);
 
   const fetchDish = React.useCallback(async () => {
@@ -94,6 +95,25 @@ const DishDetail: React.FC = () => {
       setError(err);
     } finally {
       setIsFetchingRecipe(false);
+    }
+  };
+
+  const handleExtractIngredients = async () => {
+    if (!dish?.id) return;
+    try {
+      setIsExtractingIngredients(true);
+      setRecipeFeedback(null);
+      await fetchApi('/api/extract_ingredients', {
+        method: 'POST',
+        body: JSON.stringify({ dishId: dish.id }),
+      });
+      setRecipeFeedback(
+        "Extracting ingredients. If everything's ok, after a minute you'll see an ingredients list",
+      );
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setIsExtractingIngredients(false);
     }
   };
 
@@ -195,7 +215,7 @@ const DishDetail: React.FC = () => {
                             ? (di.ingredient as Ingredient).name
                             : di.ingredient}
                         </span>
-                        <span className="text-muted ms-2">— {di.weight}</span>
+                        {di.weight && <span className="text-muted ms-2">— {di.weight}</span>}
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
@@ -225,6 +245,32 @@ const DishDetail: React.FC = () => {
                   </>
                 ) : (
                   'Get a recipe'
+                )}
+              </Button>
+              <Button
+                variant="outline-primary"
+                onClick={handleExtractIngredients}
+                disabled={
+                  isExtractingIngredients ||
+                  !dish?.recipe?.text?.trim() ||
+                  dishIngredients.length > 0
+                }
+                className="me-2"
+              >
+                {isExtractingIngredients ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                    Extracting...
+                  </>
+                ) : (
+                  'Extract ingredients'
                 )}
               </Button>
               <Button variant="primary" onClick={() => setIsEditing(true)} className="me-2">

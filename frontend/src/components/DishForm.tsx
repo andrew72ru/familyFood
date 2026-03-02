@@ -284,7 +284,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           <Tab eventKey="edit" title="Edit">
             <Form.Control
               as="textarea"
-              rows={4}
+              rows={35}
               value={recipeText}
               onChange={(e) => setRecipeText(e.target.value)}
               placeholder="Enter recipe instructions (Markdown supported)"
