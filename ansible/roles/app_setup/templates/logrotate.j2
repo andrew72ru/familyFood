@@ -1,0 +1,10 @@
+{{ app_root }}/var/log/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    notifempty
+    create 0664 {{ ansible_user }} www-data
+    copytruncate
+    sharedscripts
+}

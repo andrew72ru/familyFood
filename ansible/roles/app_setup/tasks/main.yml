@@ -25,4 +25,12 @@
     recursive: yes
   ignore_errors: "{{ ansible_check_mode }}"
 
+- name: Copy logrotate configuration for Symfony logs
+  template:
+    src: logrotate.j2
+    dest: /etc/logrotate.d/{{ app_name }}
+    owner: root
+    group: root
+    mode: '0644'
+
 - import_tasks: messenger.yml

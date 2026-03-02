@@ -12,6 +12,7 @@
       - build-essential
       - lsb-release
       - acl
+      - logrotate
     state: present
 
 - name: Setup firewall (UFW)
