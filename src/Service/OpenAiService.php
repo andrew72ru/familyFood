@@ -6,6 +6,7 @@ use App\Dto\OpenAiResponseDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\{AutoconfigureTag, Autowire};
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AutoconfigureTag('monolog.logger', ['channel' => 'openai'])]
@@ -45,7 +46,14 @@ final readonly class OpenAiService
             ],
         ]);
 
-        $content = $response->getContent();
+        try {
+            $content = $response->getContent();
+        } catch (\Throwable $e) {
+            $message = $e instanceof ClientExceptionInterface ? $e->getResponse()->getContent(false) : $e->getMessage();
+            $this->openaiLogger->error('Open AI error', ['message' => $message]);
+
+            throw $e;
+        }
 
         $this->openaiLogger->info('OpenAI Response', [
             'dish' => $dishName,

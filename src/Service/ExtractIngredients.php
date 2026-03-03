@@ -6,6 +6,7 @@ use App\Dto\OpenAiResponseDto;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExtractIngredients
@@ -29,7 +30,7 @@ final readonly class ExtractIngredients
     {
         $response = $this->httpClient->request('POST', self::API_URL, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->openAiApiKey,
+                'Authorization' => 'Bearer ' . $this->openAiApiKey . '++++++',
                 'Content-Type' => 'application/json',
             ],
             'json' => [
@@ -43,7 +44,15 @@ final readonly class ExtractIngredients
                 ],
             ],
         ]);
-        $content = $response->getContent();
+
+        try {
+            $content = $response->getContent();
+        } catch (\Throwable $e) {
+            $message = $e instanceof ClientExceptionInterface ? $e->getResponse()->getContent(false) : $e->getMessage();
+            $this->logger->error('Open AI error', ['message' => $message]);
+
+            throw $e;
+        }
 
         $this->logger->info('OpenAI Response', ['response' => \json_decode($content, true)]);
 
