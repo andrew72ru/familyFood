@@ -191,37 +191,35 @@ const DishList: React.FC = () => {
         <Row xs={1} md={2} lg={3} className="g-4">
           {dishes.map((dish) => (
             <Col key={dish.id || dish['@id']}>
-              <Card h-100>
-                <Card.Body>
-                  <Card.Title>
-                    <Link
-                      to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`}
-                      className="text-decoration-none"
-                    >
-                      {dish.name}
-                    </Link>
-                  </Card.Title>
-                  <Card.Text className="text-muted">
-                    {dish.description && dish.description.length > 100
-                      ? `${dish.description.substring(0, 100)}...`
-                      : dish.description}
-                  </Card.Text>
-                  {dish.tags && dish.tags.length > 0 && (
-                    <div className="mt-2">
-                      {(dish.tags as Tag[]).map((tag, idx) => (
-                        <Badge
-                          key={idx}
-                          bg="info"
-                          pill
-                          className="me-1"
-                          style={{ fontSize: '0.7rem' }}
-                        >
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </Card.Body>
+              <Card h-100 className="bg-white shadow h-100">
+                <Link
+                  to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`}
+                  className="text-decoration-none"
+                >
+                  <Card.Body>
+                    <Card.Title>{dish.name}</Card.Title>
+                    <Card.Text className="text-muted">
+                      {dish.description && dish.description.length > 100
+                        ? `${dish.description.substring(0, 100)}...`
+                        : dish.description}
+                    </Card.Text>
+                    {dish.tags && dish.tags.length > 0 && (
+                      <div className="mt-0">
+                        {(dish.tags as Tag[]).map((tag, idx) => (
+                          <Badge
+                            key={idx}
+                            bg="primary"
+                            pill={false}
+                            className="me-1"
+                            style={{ fontSize: '0.7rem' }}
+                          >
+                            {tag.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </Card.Body>
+                </Link>
               </Card>
             </Col>
           ))}

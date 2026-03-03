@@ -227,7 +227,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
         <Form.Label>Tags</Form.Label>
         <div className="mb-2">
           {tags.map((tag, idx) => (
-            <Badge key={idx} bg="info" className="me-2 p-2">
+            <Badge key={idx} bg="primary" className="me-2 p-2">
               {tag.name}
               <span
                 className="ms-2"

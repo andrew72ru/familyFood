@@ -10,6 +10,7 @@ import {
   Row,
   Col,
   Badge,
+  ButtonGroup,
 } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { Dish, DishIngredient, Ingredient, Tag } from '../types/Dish';
@@ -157,17 +158,17 @@ const DishDetail: React.FC = () => {
   }
 
   return (
-    <Container className="py-4">
+    <Container fluid={true} className="py-2 px-1">
       <Row className="justify-content-center">
         <Col md={10} lg={8}>
-          <Card className="shadow-sm">
-            <Card.Header className="d-flex justify-content-between align-items-center bg-white py-3">
+          <Card className="shadow">
+            <Card.Header className="d-flex justify-content-between align-items-center py-3">
               <div>
                 <h2 className="mb-1">{dish.name}</h2>
                 {dish.tags && dish.tags.length > 0 && (
                   <div>
                     {(dish.tags as Tag[]).map((tag, idx) => (
-                      <Badge key={idx} bg="info" pill className="me-1">
+                      <Badge key={idx} bg="primary" pill={false} className="me-1">
                         {tag.name}
                       </Badge>
                     ))}
@@ -222,63 +223,62 @@ const DishDetail: React.FC = () => {
                 </div>
               )}
             </Card.Body>
-            <Card.Footer className="bg-white py-3">
-              <Button
-                variant="outline-primary"
-                onClick={handleGetRecipe}
-                disabled={
-                  isFetchingRecipe || (!!dish?.recipe?.text && dish.recipe.text.trim() !== '')
-                }
-                className="me-2"
-              >
-                {isFetchingRecipe ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
-                    />
-                    Requesting...
-                  </>
-                ) : (
-                  'Get a recipe'
-                )}
-              </Button>
-              <Button
-                variant="outline-primary"
-                onClick={handleExtractIngredients}
-                disabled={
-                  isExtractingIngredients ||
-                  !dish?.recipe?.text?.trim() ||
-                  dishIngredients.length > 0
-                }
-                className="me-2"
-              >
-                {isExtractingIngredients ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
-                    />
-                    Extracting...
-                  </>
-                ) : (
-                  'Extract ingredients'
-                )}
-              </Button>
-              <Button variant="primary" onClick={() => setIsEditing(true)} className="me-2">
-                Edit Dish
-              </Button>
-              <Button variant="danger" onClick={handleDelete}>
-                Delete Dish
-              </Button>
+            <Card.Footer className="py-3">
+              <ButtonGroup>
+                <Button
+                  variant="outline-primary"
+                  onClick={handleGetRecipe}
+                  disabled={
+                    isFetchingRecipe || (!!dish?.recipe?.text && dish.recipe.text.trim() !== '')
+                  }
+                >
+                  {isFetchingRecipe ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                      Requesting...
+                    </>
+                  ) : (
+                    'Get a recipe'
+                  )}
+                </Button>
+                <Button
+                  variant="outline-primary"
+                  onClick={handleExtractIngredients}
+                  disabled={
+                    isExtractingIngredients ||
+                    !dish?.recipe?.text?.trim() ||
+                    dishIngredients.length > 0
+                  }
+                >
+                  {isExtractingIngredients ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                      Extracting...
+                    </>
+                  ) : (
+                    'Extract ingredients'
+                  )}
+                </Button>
+                <Button variant="primary" onClick={() => setIsEditing(true)}>
+                  Edit Dish
+                </Button>
+                <Button variant="danger" onClick={handleDelete}>
+                  Delete Dish
+                </Button>
+              </ButtonGroup>
             </Card.Footer>
           </Card>
         </Col>

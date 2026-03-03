@@ -1,6 +1,12 @@
 // Custom Bootstrap overrides
 // 1. Remove rounded corners
 $enable-rounded: false;
+$badge-border-radius: 0;
+
+$btn-border-radius:    0;
+$btn-border-radius-sm: 0;
+$btn-border-radius-lg: 0;
+$input-border-radius:  0;
 
 // 2. Darken primary color
 // Default Bootstrap primary is #0d6efd
