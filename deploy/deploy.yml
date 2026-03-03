@@ -30,11 +30,12 @@
         owner: "{{ ansible_user }}"
         group: www-data
         mode: "{{ item.mode | default('0775') }}"
+        recurse: "{{ item.recurse | default(omit) }}"
       loop:
         - { path: "{{ releases_dir }}" }
         - { path: "{{ shared_dir }}" }
         - { path: "{{ deploy_root }}/var", mode: '0775' }
-        - { path: "{{ deploy_root }}/var/log", mode: '0777' }
+        - { path: "{{ deploy_root }}/var/log", mode: '0777', recurse: yes }
       become: yes
 
     - name: Set ACLs on shared var directory
