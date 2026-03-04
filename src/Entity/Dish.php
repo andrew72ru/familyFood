@@ -13,11 +13,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DishRepository::class)]
 #[API\GetCollection(
+    order: ['name' => 'ASC'],
     normalizationContext: ['groups' => ['dish:read']],
     parameters: [
         'search[:property]' => new API\QueryParameter(filter: new Filter\PartialSearchFilter(), properties: ['name']),
         'tags' => new API\QueryParameter(filter: new Filter\IriFilter(), property: 'tags'),
-    ]
+    ],
 )]
 #[API\Get(normalizationContext: ['groups' => ['dish:read']]), API\Post, API\Patch(denormalizationContext: ['groups' => ['dish:write']]), API\Delete]
 class Dish

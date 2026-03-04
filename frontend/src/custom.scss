@@ -8,10 +8,38 @@ $btn-border-radius-sm: 0;
 $btn-border-radius-lg: 0;
 $input-border-radius:  0;
 
-// 2. Darken primary color
-// Default Bootstrap primary is #0d6efd
-$primary: darken(#0d6efd, 20%);
-$danger: darken(#dc3545, 20);
+// 2. Define custom palette from Colors URL
+// https://coolors.co/palette/4F2413-77462F-5A3118-181312-D3CDC9
+$colors-dark-brown:    #4F2413;
+$colors-medium-brown:  #77462F;
+$colors-reddish-brown: #5A3118;
+$colors-near-black:    #181312;
+$colors-light-gray:    #D3CDC9;
+
+// 3. Map to Bootstrap theme colors
+$primary: $colors-dark-brown;
+$secondary: $colors-medium-brown;
+$success: $colors-reddish-brown;
+$dark: $colors-near-black;
+$info: $colors-light-gray;
 
 // Import Bootstrap
 @import "bootstrap/scss/bootstrap";
+
+.app {
+}
+
+.content-overlay {
+  min-height: 100vh;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure background of components doesn't stack and make it too opaque */
+.navbar, .card, .alert, .modal-content, .list-group-item, .dropdown-menu {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Dark mode components if applicable */
+.navbar.bg-dark {
+  background-color: rgba(33, 37, 41, 0.7) !important;
+}

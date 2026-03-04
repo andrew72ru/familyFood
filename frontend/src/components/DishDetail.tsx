@@ -210,7 +210,7 @@ const DishDetail: React.FC = () => {
                   <h5 className="text-muted border-bottom pb-2">Ingredients</h5>
                   <ListGroup variant="flush">
                     {dishIngredients.map((di: DishIngredient, index: number) => (
-                      <ListGroup.Item key={index} className="px-0">
+                      <ListGroup.Item key={index} className="px-2">
                         <span className="fw-bold">
                           {typeof di.ingredient === 'object'
                             ? (di.ingredient as Ingredient).name

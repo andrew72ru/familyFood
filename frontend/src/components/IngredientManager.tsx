@@ -127,10 +127,10 @@ const IngredientManager: React.FC = () => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <Button variant="outline-secondary" type="submit">
+            <Button variant="light" type="submit">
               Search
             </Button>
-            <Button variant="outline-danger" type="button" onClick={handleReset}>
+            <Button variant="secondary" type="button" onClick={handleReset}>
               Reset
             </Button>
           </InputGroup>

@@ -127,11 +127,8 @@ const DishList: React.FC = () => {
 
   return (
     <div className="mb-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 d-none d-lg-block d-xl-block d-xxl-block">
         <h1>Dishes</h1>
-        <Button variant="primary" onClick={() => navigate('/dishes/new')}>
-          Add New Dish
-        </Button>
       </div>
 
       <div className="mb-4">
@@ -143,11 +140,20 @@ const DishList: React.FC = () => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <Button variant="outline-secondary" type="submit">
+            <Button variant="light" type="submit">
               Search
             </Button>
-            <Button variant="outline-danger" type="button" onClick={handleReset}>
+            <Button variant="secondary" type="button" onClick={handleReset}>
               Reset
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setIsTagsOpen(!isTagsOpen)}
+              aria-controls="tags-collapse"
+              aria-expanded={isTagsOpen}
+              className="d-none d-lg-block d-xl-block d-xxl-block"
+            >
+              {isTagsOpen ? 'Hide tags' : 'Show tags'}
             </Button>
           </InputGroup>
         </Form>
@@ -155,17 +161,16 @@ const DishList: React.FC = () => {
 
       <div className="mb-4">
         <Button
-          variant="link"
           onClick={() => setIsTagsOpen(!isTagsOpen)}
           aria-controls="tags-collapse"
           aria-expanded={isTagsOpen}
-          className="p-0 mb-2 text-decoration-none"
+          className="d-block d-lg-none d-xxl-none mb-2"
         >
           {isTagsOpen ? 'Hide tags' : 'Show tags'}
         </Button>
         <Collapse in={isTagsOpen}>
           <div id="tags-collapse">
-            <div className="d-flex flex-wrap gap-2">
+            <div className="d-flex flex-wrap gap-2 bg-white p-2">
               {availableTags.map((tag) => {
                 const tagIri = tag['@id'] || `/api/tags/${tag.id}`;
                 const isActive = selectedTags.includes(tagIri);
