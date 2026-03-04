@@ -87,17 +87,11 @@
           OPENAI_PROMPT_VERSION={{ openapi_prompt_version }}
           OPENAI_EXTRACT_PROMPT={{ openapi_extract_prompt }}
           OPENAI_EXTRACT_PROMPT_VERSION={{ openapi_extract_prompt_version }}
-        dest: "{{ shared_dir }}/.env.local"
+        dest: "{{ release_path }}/.env.local"
         owner: "{{ ansible_user }}"
         group: www-data
         mode: '0640'
       become: yes
-
-    - name: Symlink shared Symfony .env.local to release
-      ansible.builtin.file:
-        src: "{{ shared_dir }}/.env.local"
-        dest: "{{ release_path }}/.env.local"
-        state: link
 
     - name: Create React .env.local for production
       ansible.builtin.copy:
@@ -198,6 +192,12 @@
         src: ../ansible/roles/caddy/templates/Caddyfile.j2
         dest: /etc/caddy/Caddyfile
       notify: Reload Caddy
+      become: yes
+
+    - name: Restart PHP-FPM service
+      ansible.builtin.service:
+        name: php8.4-fpm.service
+        state: restarted
       become: yes
 
     - name: Update and restart Symfony Messenger service

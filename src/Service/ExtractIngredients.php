@@ -29,10 +29,8 @@ final readonly class ExtractIngredients
     public function extract(string $recipe): array
     {
         $response = $this->httpClient->request('POST', self::API_URL, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->openAiApiKey,
-                'Content-Type' => 'application/json',
-            ],
+            'headers' => ['Content-Type' => 'application/json'],
+            'auth_bearer' => $this->openAiApiKey,
             'json' => [
                 'model' => 'gpt-4.1-mini',
                 'prompt' => [

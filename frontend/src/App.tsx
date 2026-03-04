@@ -13,6 +13,7 @@ import DishList from './components/DishList';
 import IngredientManager from './components/IngredientManager';
 import TagManager from './components/TagManager';
 import DishDetail from './components/DishDetail';
+import DishIngredients from './components/DishIngredients';
 import DishCreate from './components/DishCreate';
 import AdminDishList from './components/AdminDishList';
 import LoginForm from './components/LoginForm';
@@ -138,6 +139,7 @@ function App() {
               <Route path="/dishes" element={<DishList />} />
               <Route path="/dishes/new" element={<DishCreate />} />
               <Route path="/dishes/:id" element={<DishDetail />} />
+              <Route path="/dishes/:id/ingredients" element={<DishIngredients />} />
               <Route path="/ingredients" element={<IngredientManager />} />
               <Route path="/tags" element={<TagManager />} />
               <Route path="/admin/dishes" element={<AdminDishList />} />

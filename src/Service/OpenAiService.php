@@ -30,10 +30,8 @@ final readonly class OpenAiService
     public function getRecipeForDish(string $dishName): OpenAiResponseDto
     {
         $response = $this->httpClient->request('POST', self::API_URL, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->openAiApiKey,
-                'Content-Type' => 'application/json',
-            ],
+            'headers' => ['Content-Type' => 'application/json'],
+            'auth_bearer' => $this->openAiApiKey,
             'json' => [
                 'model' => 'gpt-4.1-mini',
                 'prompt' => [
