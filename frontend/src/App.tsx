@@ -17,6 +17,7 @@ import DishIngredients from './components/DishIngredients';
 import DishCreate from './components/DishCreate';
 import AdminDishList from './components/AdminDishList';
 import LoginForm from './components/LoginForm';
+import PullToRefresh from './components/PullToRefresh';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const TopNavigation = () => {
@@ -127,25 +128,31 @@ function App() {
     document.body.style.backgroundPosition = 'center';
   }, [backgroundUrl]);
 
+  const handleRefresh = async () => {
+    window.location.reload();
+  };
+
   return (
     <AuthProvider>
       <Router>
         <div className="app content-overlay">
           <TopNavigation />
 
-          <Container>
-            <Routes>
-              <Route path="/" element={<DishList />} />
-              <Route path="/dishes" element={<DishList />} />
-              <Route path="/dishes/new" element={<DishCreate />} />
-              <Route path="/dishes/:id" element={<DishDetail />} />
-              <Route path="/dishes/:id/ingredients" element={<DishIngredients />} />
-              <Route path="/ingredients" element={<IngredientManager />} />
-              <Route path="/tags" element={<TagManager />} />
-              <Route path="/admin/dishes" element={<AdminDishList />} />
-              <Route path="/login" element={<LoginForm />} />
-            </Routes>
-          </Container>
+          <PullToRefresh onRefresh={handleRefresh}>
+            <Container>
+              <Routes>
+                <Route path="/" element={<DishList />} />
+                <Route path="/dishes" element={<DishList />} />
+                <Route path="/dishes/new" element={<DishCreate />} />
+                <Route path="/dishes/:id" element={<DishDetail />} />
+                <Route path="/dishes/:id/ingredients" element={<DishIngredients />} />
+                <Route path="/ingredients" element={<IngredientManager />} />
+                <Route path="/tags" element={<TagManager />} />
+                <Route path="/admin/dishes" element={<AdminDishList />} />
+                <Route path="/login" element={<LoginForm />} />
+              </Routes>
+            </Container>
+          </PullToRefresh>
         </div>
         <BottomNavigation />
       </Router>

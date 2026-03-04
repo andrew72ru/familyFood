@@ -1,0 +1,51 @@
+.ptr-container {
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling for iOS */
+  min-height: 100vh;
+}
+
+.ptr-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.ptr-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  color: #0d6efd;
+}
+
+.ptr-spinner {
+  width: 25px;
+  height: 25px;
+  border: 2px solid #0d6efd;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ptr-spin 0.8s linear infinite;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ptr-content {
+  will-change: transform;
+  min-height: 100vh;
+}
