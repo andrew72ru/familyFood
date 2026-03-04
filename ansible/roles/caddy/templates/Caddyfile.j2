@@ -9,6 +9,11 @@
         php_fastcgi unix//var/run/php/php{{ '8.4' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'plucky') else php_version }}-fpm.sock
     }
 
+    handle /images* {
+        root * {{ project_dir }}/public
+        file_server
+    }
+
     handle /bundles* {
         root * {{ project_dir }}/public
         file_server
