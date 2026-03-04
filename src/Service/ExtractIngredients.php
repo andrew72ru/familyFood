@@ -30,7 +30,7 @@ final readonly class ExtractIngredients
     {
         $response = $this->httpClient->request('POST', self::API_URL, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->openAiApiKey . '++++++',
+                'Authorization' => 'Bearer ' . $this->openAiApiKey,
                 'Content-Type' => 'application/json',
             ],
             'json' => [
