@@ -175,8 +175,12 @@ const DishDetail: React.FC = () => {
                   </div>
                 )}
               </div>
-              <Button variant="outline-secondary" size="sm" onClick={() => navigate('/dishes')}>
-                Back to List
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => window.location.reload()}
+              >
+                <i className="bi bi-arrow-clockwise"></i>
               </Button>
             </Card.Header>
             <Card.Body>
