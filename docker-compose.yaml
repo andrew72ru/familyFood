@@ -44,7 +44,7 @@ services:
         fi
 
         echo "Restoring dump..."
-        pg_restore --clean --if-exists --no-owner --no-privileges -d "$$PGDATABASE" "/backups/pg_dump.dump"
+        pg_restore --clean --if-exists --no-owner --no-privileges -d "$$PGDATABASE" "/backups/family_food.dump"
         echo "Restore done."
     restart: no
 
