@@ -1,10 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { fetchApi } from '../api';
-import { Dish, DishIngredient } from '../types/Dish';
+import { Dish, DishIngredient, RecipeComment } from '../types/Dish';
 
 export const useDish = (id: string | undefined) => {
   const [dish, setDish] = useState<Dish | null>(null);
   const [dishIngredients, setDishIngredients] = useState<DishIngredient[]>([]);
+  const [recipeComments, setRecipeComments] = useState<RecipeComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any | null>(null);
 
@@ -39,6 +40,12 @@ export const useDish = (id: string | undefined) => {
         setDishIngredients([]);
       }
 
+      // Fetch recipe comments using the sub-resource endpoint
+      const commentsData = await fetchApi(`/api/dishes/${id}/recipe_comments`);
+      const comments =
+        commentsData?.['hydra:member'] || commentsData?.['member'] || (Array.isArray(commentsData) ? commentsData : []);
+      setRecipeComments(comments);
+
       setLoading(false);
     } catch (err: any) {
       setError(err);
@@ -53,11 +60,13 @@ export const useDish = (id: string | undefined) => {
   return {
     dish,
     dishIngredients,
+    recipeComments,
     loading,
     error,
     fetchDish,
     setDish,
     setDishIngredients,
+    setRecipeComments,
     setLoading,
     setError,
   };

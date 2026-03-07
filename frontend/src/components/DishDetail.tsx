@@ -7,6 +7,7 @@ import { fetchApi } from '../api';
 import { useDish } from '../hooks/useDish';
 import DishForm from './DishForm';
 import ErrorDisplay from './ErrorDisplay';
+import RecipeComments from './RecipeComments';
 import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -14,7 +15,7 @@ import remarkBreaks from 'remark-breaks';
 const DishDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { dish, dishIngredients, loading, error, fetchDish, setError } = useDish(id);
+  const { dish, dishIngredients, recipeComments, loading, error, fetchDish, setError } = useDish(id);
   const [isEditing, setIsEditing] = useState(false);
   const [isFetchingRecipe, setIsFetchingRecipe] = useState(false);
   const [isExtractingIngredients, setIsExtractingIngredients] = useState(false);
@@ -174,6 +175,15 @@ const DishDetail: React.FC = () => {
                     ))}
                   </ListGroup>
                 </div>
+              )}
+
+              {dish['@id'] && (
+                <RecipeComments
+                  dishId={dish['@id']}
+                  recipeComments={recipeComments}
+                  onCommentChange={fetchDish}
+                  setError={setError}
+                />
               )}
             </Card.Body>
             <Card.Footer className="py-3">

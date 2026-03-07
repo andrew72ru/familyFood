@@ -29,6 +29,14 @@ export interface Tag {
   name?: string;
 }
 
+export interface RecipeComment {
+  '@id'?: string;
+  id?: number;
+  text?: string;
+  dish?: string;
+  createdAt?: string;
+}
+
 export interface Dish {
   '@id'?: string;
   id?: number;
@@ -38,5 +46,6 @@ export interface Dish {
   updatedAt?: string;
   recipe?: Recipe;
   dishIngredients?: DishIngredient[] | string[];
+  recipeComments?: RecipeComment[] | string[];
   tags?: Tag[] | string[];
 }

@@ -2,20 +2,38 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\{ApiResource, Get, GetCollection, Link, Patch, Post};
 use App\Repository\RecipeCommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation\Timestampable;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RecipeCommentRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new GetCollection(order: ['createdAt' => 'desc']),
+        new GetCollection(
+            uriTemplate: '/dishes/{id}/recipe_comments',
+            uriVariables: [
+                'id' => new Link(toProperty: 'dish', fromClass: Dish::class),
+            ],
+            order: ['createdAt' => 'desc'],
+            normalizationContext: ['groups' => ['recipe_comment:read']],
+        ),
+        new Get(),
+        new Post(),
+        new Patch(),
+    ]
+)]
 class RecipeComment
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    #[Groups(['dish:read', 'recipe_comment:read'])]
     private int | null $id = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['dish:read', 'recipe_comment:read'])]
     private string | null $text = null;
 
     #[ORM\ManyToOne(inversedBy: 'recipeComments')]
@@ -23,6 +41,7 @@ class RecipeComment
 
     #[ORM\Column(nullable: true)]
     #[Timestampable(on: 'create')]
+    #[Groups(['dish:read', 'recipe_comment:read'])]
     private \DateTimeImmutable | null $createdAt = null;
 
     public function getId(): int | null
