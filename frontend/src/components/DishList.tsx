@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup, Badge, Collapse } from 'react-bootstrap';
 import { Dish, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import Pagination from './Pagination';
 import ErrorDisplay from './ErrorDisplay';
+import { useTranslation } from 'react-i18next';
 
 const DishList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -18,8 +19,7 @@ const DishList: React.FC = () => {
   const selectedTags = React.useMemo(() => searchParams.getAll('tags[]'), [searchParams]);
   const [searchInput, setSearchInput] = useState(searchTerm);
   const [isTagsOpen, setIsTagsOpen] = useState(false);
-
-  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const fetchAvailableTags = async () => {
     try {
@@ -104,7 +104,7 @@ const DishList: React.FC = () => {
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading dishes...</span>
+          <span className="visually-hidden">{t('Loading dishes')}…</span>
         </Spinner>
       </div>
     );
@@ -117,7 +117,7 @@ const DishList: React.FC = () => {
   return (
     <div className="mb-5">
       <div className="d-flex justify-content-between align-items-center mb-4 d-none d-lg-block d-xl-block d-xxl-block">
-        <h1>Dishes</h1>
+        <h1>{t('Dishes')}</h1>
       </div>
 
       <div className="mb-4">
@@ -125,15 +125,15 @@ const DishList: React.FC = () => {
           <InputGroup>
             <Form.Control
               type="text"
-              placeholder="Search dishes by name..."
+              placeholder={t('Search dishes by name')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
             <Button variant="light" type="submit">
-              Search
+              {t('Search')}
             </Button>
             <Button variant="secondary" type="button" onClick={handleReset}>
-              Reset
+              {t('Reset')}
             </Button>
             <Button
               variant="secondary"
@@ -142,7 +142,7 @@ const DishList: React.FC = () => {
               aria-expanded={isTagsOpen}
               className="d-none d-lg-block d-xl-block d-xxl-block"
             >
-              {isTagsOpen ? 'Hide tags' : 'Show tags'}
+              {isTagsOpen ? t('Hide tags') : t('Show tags')}
             </Button>
           </InputGroup>
         </Form>
@@ -180,7 +180,7 @@ const DishList: React.FC = () => {
       </div>
 
       {dishes.length === 0 ? (
-        <Alert variant="info">No dishes found.</Alert>
+        <Alert variant="info">{t('No dishes found.')}</Alert>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
           {dishes.map((dish) => (

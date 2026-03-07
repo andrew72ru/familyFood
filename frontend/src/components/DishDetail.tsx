@@ -7,6 +7,7 @@ import { fetchApi } from '../api';
 import { useDish } from '../hooks/useDish';
 import DishForm from './DishForm';
 import ErrorDisplay from './ErrorDisplay';
+import { useTranslation } from 'react-i18next';
 
 const DishDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ const DishDetail: React.FC = () => {
   const [isFetchingRecipe, setIsFetchingRecipe] = useState(false);
   const [isExtractingIngredients, setIsExtractingIngredients] = useState(false);
   const [recipeFeedback, setRecipeFeedback] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     if (!dish?.['@id'] || !window.confirm('Are you sure?')) return;
@@ -36,7 +38,7 @@ const DishDetail: React.FC = () => {
         method: 'POST',
         body: JSON.stringify({ dishId: dish.id }),
       });
-      setRecipeFeedback("If everything's ok, after a minute you'll see a recipe");
+      setRecipeFeedback(t('extracting.recipe'));
     } catch (err: any) {
       setError(err);
     } finally {
@@ -53,7 +55,7 @@ const DishDetail: React.FC = () => {
         method: 'POST',
         body: JSON.stringify({ dishId: dish.id }),
       });
-      setRecipeFeedback("Extracting ingredients. If everything's ok, after a minute you'll see an ingredients list");
+      setRecipeFeedback(t('extracting.ingredients'));
     } catch (err: any) {
       setError(err);
     } finally {
@@ -65,7 +67,7 @@ const DishDetail: React.FC = () => {
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading dish details...</span>
+          <span className="visually-hidden">{t('Loading dish details')}...</span>
         </Spinner>
       </div>
     );
@@ -124,8 +126,8 @@ const DishDetail: React.FC = () => {
             </Card.Header>
             <Card.Body>
               <div className="mb-4">
-                <h5 className="text-muted border-bottom pb-2">Description</h5>
-                <p>{dish.description || 'No description provided.'}</p>
+                <h5 className="text-muted border-bottom pb-2">{t('Description')}</h5>
+                <p>{dish.description || t('No description provided.')}</p>
               </div>
 
               {dish.recipe && (
@@ -145,7 +147,7 @@ const DishDetail: React.FC = () => {
 
               {dishIngredients.length > 0 && (
                 <div className="mb-4">
-                  <h5 className="text-muted border-bottom pb-2">Ingredients</h5>
+                  <h5 className="text-muted border-bottom pb-2">{t('Ingredients')}</h5>
                   <ListGroup variant="flush">
                     {dishIngredients.map((di: DishIngredient, index: number) => (
                       <ListGroup.Item key={index} className="px-2">
@@ -175,7 +177,7 @@ const DishDetail: React.FC = () => {
                           {isFetchingRecipe ? (
                             <>
                               <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                              Requesting...
+                              {t('Requesting')}...
                             </>
                           ) : (
                             'Get a recipe'
@@ -199,17 +201,17 @@ const DishDetail: React.FC = () => {
                                 aria-hidden="true"
                                 className="me-2"
                               />
-                              Extracting...
+                              {t('Extracting')}...
                             </>
                           ) : (
                             'Extract ingredients'
                           )}
                         </Button>
                         <Button variant="primary" className="me-md-2" onClick={() => setIsEditing(true)}>
-                          Edit Dish
+                          {t('Edit Dish')}
                         </Button>
                         <Button variant="danger" onClick={handleDelete}>
-                          Delete Dish
+                          {t('Delete Dish')}
                         </Button>
                       </div>
                     </Accordion.Body>
@@ -218,7 +220,7 @@ const DishDetail: React.FC = () => {
                 {dishIngredients.length > 0 && (
                   <div className="d-grid px-1 mt-3">
                     <Link to={`/dishes/${dish.id}/ingredients`} className="btn btn-primary btn-block btn-lg">
-                      Ingredients only
+                      {t('Ingredients only')}
                     </Link>
                   </div>
                 )}

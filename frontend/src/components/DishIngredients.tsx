@@ -4,12 +4,14 @@ import { Button, Card, Spinner, Alert, Container, Row, Col } from 'react-bootstr
 import { DishIngredient, Ingredient } from '../types/Dish';
 import { useDish } from '../hooks/useDish';
 import ErrorDisplay from './ErrorDisplay';
+import { useTranslation } from 'react-i18next';
 
 const DishIngredients: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { dish, dishIngredients, loading, error, setError } = useDish(id);
   const [copied, setCopied] = useState(false);
+  const { t } = useTranslation();
 
   const copyToClipboard = () => {
     const text = dishIngredients
@@ -27,7 +29,7 @@ const DishIngredients: React.FC = () => {
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading ingredients...</span>
+          <span className="visually-hidden">{t('Loading ingredients')}...</span>
         </Spinner>
       </div>
     );
@@ -40,7 +42,7 @@ const DishIngredients: React.FC = () => {
   if (!dish) {
     return (
       <Alert variant="warning" className="mt-3">
-        Dish not found.
+        {t('Dish not found.')}
       </Alert>
     );
   }
@@ -51,7 +53,9 @@ const DishIngredients: React.FC = () => {
         <Col md={10} lg={8}>
           <Card className="shadow">
             <Card.Header className="d-flex justify-content-between align-items-center py-3">
-              <h2 className="mb-0">{dish.name} - Ingredients</h2>
+              <h2 className="mb-0">
+                {dish.name} - {t('Ingredients')}
+              </h2>
               <Button variant="outline-secondary" size="sm" onClick={() => navigate(`/dishes/${id}`)}>
                 <i className="bi bi-arrow-left"></i>
               </Button>
@@ -68,7 +72,7 @@ const DishIngredients: React.FC = () => {
                 ))}
               </ul>
               <Button variant={copied ? 'info' : 'primary'} onClick={copyToClipboard}>
-                {copied ? 'Copied!' : 'Copy to Clipboard'}
+                {copied ? t('Copied!') : t('Copy to Clipboard')}
               </Button>
             </Card.Body>
           </Card>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import DishList from './components/DishList';
 import IngredientManager from './components/IngredientManager';
 import TagManager from './components/TagManager';
@@ -13,7 +14,12 @@ import PullToRefresh from './components/PullToRefresh';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const TopNavigation = () => {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -28,31 +34,35 @@ const TopNavigation = () => {
       <Container>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
           <img
-            alt="Family Food Logo"
+            alt={t('common.app_name')}
             src="/icon.svg"
             width="30"
             height="30"
             className="d-inline-block align-top me-2"
           />
-          Family Food
+          {t('common.app_name')}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link as={NavLink} to="/dishes">
-              Dishes
+              {t('navigation.dishes')}
             </Nav.Link>
             <Nav.Link as={NavLink} to="/ingredients">
-              Ingredients
+              {t('navigation.ingredients')}
             </Nav.Link>
             <Nav.Link as={NavLink} to="/tags">
-              Tags
+              {t('navigation.tags')}
             </Nav.Link>
           </Nav>
           <Nav>
             <Nav.Link as={NavLink} to="/dishes/new">
-              Add New Dish
+              {t('navigation.add_new_dish')}
             </Nav.Link>
+            <NavDropdown title={i18n.language.split('-')[0].toUpperCase()} id="language-dropdown" align="end">
+              <NavDropdown.Item onClick={() => changeLanguage('en')}>{t('language.en')}</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => changeLanguage('ru')}>{t('language.ru')}</NavDropdown.Item>
+            </NavDropdown>
           </Nav>
         </Navbar.Collapse>
       </Container>
@@ -61,6 +71,7 @@ const TopNavigation = () => {
 };
 
 const BottomNavigation = () => {
+  const { t } = useTranslation();
   const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -79,22 +90,22 @@ const BottomNavigation = () => {
       <Container>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
           <img
-            alt="Family Food Logo"
+            alt={t('common.app_name')}
             src="/icon.svg"
             width="25"
             height="25"
             className="d-inline-block align-top me-2"
           />
-          <small>Family Food</small>
+          <small>{t('common.app_name')}</small>
         </Navbar.Brand>
         <Nav className="ms-auto">
           {isAuthenticated ? (
             <Nav.Link as="button" className="btn btn-outline-secondary text-light opacity-75" onClick={handleLogout}>
-              Logout
+              {t('common.logout')}
             </Nav.Link>
           ) : (
             <Nav.Link as={Link} to="/login">
-              Login
+              {t('common.login')}
             </Nav.Link>
           )}
         </Nav>

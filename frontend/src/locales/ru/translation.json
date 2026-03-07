@@ -1,0 +1,73 @@
+{
+  "Add": "Добавить",
+  "Add Ingredient": "Добавить ингредиент",
+  "An error occurred during login": "Ошибка входа",
+  "Cancel": "Отменить",
+  "common": {
+    "app_name": "Питание семьи",
+    "login": "Вход",
+    "logout": "Выход"
+  },
+  "Copied!": "Скопировано",
+  "Copy to Clipboard": "Скопировать в буфер обмена",
+  "Create New Dish": "Добавить блюдо",
+  "Delete Dish": "Удалить",
+  "Description": "Описание",
+  "Dish not found": "Не найдено",
+  "Dishes": "Список блюд",
+  "Edit Dish": "Редактировать",
+  "Email address": "Емайл",
+  "Enter dish description": "Добавить описание",
+  "Enter recipe instructions (Markdown supported)": "Рецепт (Markdown supported)",
+  "extracting": {
+    "ingredients": "Извлекаем ингредиенты",
+    "recipe": "Генерируем рецепт"
+  },
+  "Extracting": "Извлекаем",
+  "Extracting ingredients": {
+    " If everything's ok, after a minute you'll see an ingredients list": "Если всё прошло хорошо, через несколько секунд будет доступен список ингредиентов."
+  },
+  "Hide tags": "Спрятать тэги",
+  "If everything's ok, after a minute you'll see a recipe": "Если всё прошло хорошо, через несколько секунд будет доступен рецепт.",
+  "Ingredients": "Ингредиенты",
+  "Ingredients only": "Показать только ингредиенты",
+  "language": {
+    "en": "English",
+    "ru": "Russian"
+  },
+  "Loading dish details": "Загрузка…",
+  "Loading dishes": "Загрузка…",
+  "Loading ingredients": "Загрузка…",
+  "Logging in": "Вход…",
+  "login": {
+    "exception": "Ошибка входа",
+    "failed": "Ошибка входа"
+  },
+  "Login": "Вход",
+  "Login failed": {
+    " No token received": "Ошибка входа"
+  },
+  "Name": "Название",
+  "navigation": {
+    "add_new_dish": "Добавить блюдо",
+    "dishes": "Блюда",
+    "ingredients": "Ингредиенты",
+    "tags": "Тэги"
+  },
+  "No description provided": "Нет описания",
+  "No dishes found": "Нет ни одного блюда :(",
+  "Password": "Пароль",
+  "Preview": "Предпросмотр",
+  "Recipe Instructions": "Рецепт",
+  "Requesting": "Запрос…",
+  "Reset": "Сбросить",
+  "Save Dish": "Сохранить",
+  "Saving": "Сохранение…",
+  "Search": "Поиск",
+  "Search dishes by name": "Поиск по названию",
+  "Select Ingredient": "Выбрать ингредиент",
+  "Show tags": "Показать тэги",
+  "Total items:": "Всего:",
+  "Type and press Enter to add a new tag": "Введите новый тэг и нажмите Enter",
+  "Type tag name": "Введите тэг"
+}

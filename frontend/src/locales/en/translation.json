@@ -1,0 +1,74 @@
+{
+  "Add": "Add",
+  "Add Ingredient": "Add Ingredient",
+  "An error occurred during login": "An error occurred during login",
+  "Cancel": "Cancel",
+  "common": {
+    "app_name": "Family Food",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "Copied!": "Copied!",
+  "Copy to Clipboard": "Copy to Clipboard",
+  "Create New Dish": "Create New Dish",
+  "Delete Dish": "Delete Dish",
+  "Description": "Description",
+  "Dish not found": "Dish not found",
+  "Dishes": "Dishes",
+  "Edit Dish": "Edit Dish",
+  "Email address": "Email address",
+  "Enter dish description": "Enter dish description",
+  "Enter recipe instructions (Markdown supported)": "Enter recipe instructions (Markdown supported)",
+  "extracting": {
+    "ingredients": "Extracting ingredients. If everything's ok, after a minute you'll see an ingredients list",
+    "recipe": "Extracting recipe. If everything's ok, after a minute you'll see a recipe"
+  },
+  "Extracting": "Extracting",
+  "Extracting ingredients": {
+    " If everything's ok, after a minute you'll see an ingredients list": "Extracting ingredients. If everything's ok, after a minute you'll see an ingredients list"
+  },
+  "Hide tags": "Hide tags",
+  "If everything's ok, after a minute you'll see a recipe": "If everything's ok, after a minute you'll see a recipe",
+  "Ingredients": "Ingredients",
+  "Ingredients only": "Ingredients only",
+  "language": {
+    "de": "Deutsch",
+    "en": "English",
+    "ru": "Russian"
+  },
+  "Loading dish details": "",
+  "Loading dishes": "Loading dishes",
+  "Loading ingredients": "Loading ingredients",
+  "Logging in": "Logging in",
+  "login": {
+    "exception": "",
+    "failed": ""
+  },
+  "Login": "Login",
+  "Login failed": {
+    " No token received": ""
+  },
+  "Name": "Name",
+  "navigation": {
+    "add_new_dish": "Add New Dish",
+    "dishes": "Dishes",
+    "ingredients": "Ingredients",
+    "tags": "Tags"
+  },
+  "No description provided": "No description provided",
+  "No dishes found": "No dishes found",
+  "Password": "Password",
+  "Preview": "Preview",
+  "Recipe Instructions": "Recipe Instructions",
+  "Requesting": "Requesting",
+  "Reset": "Reset",
+  "Save Dish": "",
+  "Saving": "Saving",
+  "Search": "",
+  "Search dishes by name": "Search dishes by name…",
+  "Select Ingredient": "Select Ingredient",
+  "Show tags": "Show tags",
+  "Total items:": "Total items:",
+  "Type and press Enter to add a new tag": "Type and press Enter to add a new tag",
+  "Type tag name": "Type tag name"
+}

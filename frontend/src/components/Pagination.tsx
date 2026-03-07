@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface PaginationProps {
   currentPage: number;
@@ -9,6 +10,7 @@ interface PaginationProps {
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const { t } = useTranslation();
 
   if (totalPages <= 1) return null;
 
@@ -26,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, itemsP
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
-            Previous
+            <i className="bi bi-arrow-left"></i>
           </button>
         </li>
         {pages.map((p) => (
@@ -42,11 +44,13 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalItems, itemsP
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
-            Next
+            <i className="bi bi-arrow-right"></i>
           </button>
         </li>
       </ul>
-      <div className="text-center text-muted small mt-1">Total items: {totalItems}</div>
+      <div className="text-center text-muted small mt-1">
+        {t('Total items:')} {totalItems}
+      </div>
     </nav>
   );
 };

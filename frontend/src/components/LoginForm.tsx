@@ -3,6 +3,7 @@ import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { fetchApi } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ const LoginForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,10 +32,10 @@ const LoginForm: React.FC = () => {
         login(response.token, response.refresh_token, response.refresh_token_expiration);
         navigate('/');
       } else {
-        setError('Login failed. No token received.');
+        setError(t('login.failed'));
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred during login');
+      setError(err.message || t('login.exception'));
     } finally {
       setLoading(false);
     }
@@ -43,11 +45,11 @@ const LoginForm: React.FC = () => {
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
       <Card style={{ width: '400px' }} className="shadow">
         <Card.Body>
-          <Card.Title className="text-center mb-4">Login</Card.Title>
+          <Card.Title className="text-center mb-4">{t('Login')}</Card.Title>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
+              <Form.Label>{t('Email address')}</Form.Label>
               <Form.Control
                 type="email"
                 placeholder="Enter email"
@@ -58,7 +60,7 @@ const LoginForm: React.FC = () => {
             </Form.Group>
 
             <Form.Group className="mb-4" controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
+              <Form.Label>{t('Password')}</Form.Label>
               <Form.Control
                 type="password"
                 placeholder="Password"
@@ -69,7 +71,7 @@ const LoginForm: React.FC = () => {
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? t('Logging in') : t('Login')}
             </Button>
           </Form>
         </Card.Body>

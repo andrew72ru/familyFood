@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { Dish, Ingredient, DishIngredient, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import ErrorDisplay from './ErrorDisplay';
+import { useTranslation } from 'react-i18next';
 
 interface DishFormProps {
   dish?: Dish;
@@ -24,6 +25,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   const [suggestedTags, setSuggestedTags] = useState<Tag[]>([]);
   const [error, setError] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchSuggestedTags = async () => {
@@ -198,18 +200,18 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
       <ErrorDisplay error={error} onClose={() => setError(null)} className="mb-3" />
 
       <Form.Group className="mb-3">
-        <Form.Label>Name</Form.Label>
+        <Form.Label>{t('Name')}</Form.Label>
         <Form.Control value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter dish name" />
       </Form.Group>
 
       <Form.Group className="mb-3">
-        <Form.Label>Description</Form.Label>
+        <Form.Label>{t('Description')}</Form.Label>
         <Form.Control
           as="textarea"
           rows={2}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter dish description"
+          placeholder={t('Enter dish description')}
         />
       </Form.Group>
 
@@ -229,7 +231,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           <InputGroup>
             <Form.Control
               type="text"
-              placeholder="Type tag name..."
+              placeholder={t('Type tag name')}
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={(e) => {
@@ -253,11 +255,11 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
             </ListGroup>
           )}
         </div>
-        <Form.Text className="text-muted">Type and press Enter to add a new tag.</Form.Text>
+        <Form.Text className="text-muted">{t('Type and press Enter to add a new tag.')}</Form.Text>
       </Form.Group>
 
       <Form.Group className="mb-3">
-        <Form.Label>Recipe Instructions</Form.Label>
+        <Form.Label>{t('Recipe Instructions')}</Form.Label>
         <Tabs defaultActiveKey="edit" className="mb-2">
           <Tab eventKey="edit" title="Edit">
             <Form.Control
@@ -265,10 +267,10 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
               rows={35}
               value={recipeText}
               onChange={(e) => setRecipeText(e.target.value)}
-              placeholder="Enter recipe instructions (Markdown supported)"
+              placeholder={t('Enter recipe instructions (Markdown supported)')}
             />
           </Tab>
-          <Tab eventKey="preview" title="Preview">
+          <Tab eventKey="preview" title={t('Preview')}>
             <div className="p-3 border rounded bg-white" style={{ minHeight: '106px' }}>
               <ReactMarkdown>{recipeText || '*No recipe content*'}</ReactMarkdown>
             </div>
@@ -293,10 +295,10 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
       </ListGroup>
 
       <div className="bg-light p-3 rounded mb-4">
-        <h6 className="mb-3">Add Ingredient</h6>
+        <h6 className="mb-3">{t('Add Ingredient')}</h6>
         <InputGroup>
           <Form.Select value={selectedIngredient} onChange={(e) => setSelectedIngredient(e.target.value)}>
-            <option value="">Select Ingredient</option>
+            <option value="">{t('Select Ingredient')}</option>
             {ingredients.map((ing) => (
               <option key={ing['@id']} value={ing['@id']}>
                 {ing.name}
@@ -305,17 +307,17 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           </Form.Select>
           <Form.Control placeholder="Weight (e.g. 500g)" value={weight} onChange={(e) => setWeight(e.target.value)} />
           <Button variant="outline-primary" onClick={handleAddIngredient}>
-            Add
+            {t('Add')}
           </Button>
         </InputGroup>
       </div>
 
       <div className="d-flex gap-2">
         <Button variant="success" type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Dish'}
+          {loading ? t('Saving') : t('Save Dish')}
         </Button>
         <Button variant="secondary" onClick={onCancel} disabled={loading}>
-          Cancel
+          {t('Cancel')}
         </Button>
       </div>
     </Form>
