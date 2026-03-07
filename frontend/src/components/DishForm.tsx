@@ -350,7 +350,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
 
       <div className="bg-light p-3 rounded mb-4">
         <h6 className="mb-3">{t('Add Ingredient')}</h6>
-        <div className="d-flex gap-2 align-items-center">
+        <div className="d-flex flex-column flex-md-row gap-2 align-items-md-center">
           <div className="flex-grow-1">
             <Select
               classNamePrefix="react-select"
@@ -371,15 +371,18 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
               isClearable
             />
           </div>
-          <Form.Control
-            placeholder={t('weight_example')}
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            style={{ width: '250px' }}
-          />
-          <Button variant="outline-primary" onClick={handleAddIngredient}>
-            {t('Add')}
-          </Button>
+          <div className="d-flex gap-2">
+            <Form.Control
+              placeholder={t('weight_example')}
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="flex-grow-1"
+              style={{ minWidth: '150px', maxWidth: '250px' }}
+            />
+            <Button variant="outline-primary" onClick={handleAddIngredient}>
+              {t('Add')}
+            </Button>
+          </div>
         </div>
       </div>
 
