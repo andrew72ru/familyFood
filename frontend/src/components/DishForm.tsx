@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, ListGroup, InputGroup, Spinner, Tabs, Tab, Badge } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
+import Select from 'react-select';
 import { Dish, Ingredient, DishIngredient, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import ErrorDisplay from './ErrorDisplay';
@@ -54,7 +55,9 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   }, [tagInput]);
 
   useEffect(() => {
-    fetchApi('/api/ingredients').then((data) => setIngredients(data['hydra:member'] || data['member'] || []));
+    fetchApi('/api/ingredients?pagination=0').then((data) =>
+      setIngredients(data['hydra:member'] || data['member'] || []),
+    );
     if (dish) {
       const loadData = async () => {
         setLoading(true);
@@ -108,6 +111,28 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
 
   const handleRemoveIngredient = (index: number) => {
     setDishIngredients(dishIngredients.filter((_, i) => i !== index));
+  };
+
+  const handleWeightChange = (index: number, newWeight: string) => {
+    const updatedIngredients = [...dishIngredients];
+    updatedIngredients[index] = { ...updatedIngredients[index], weight: newWeight };
+    setDishIngredients(updatedIngredients);
+  };
+
+  const handleWeightBlur = async (index: number) => {
+    const di = dishIngredients[index];
+    if (di['@id']) {
+      try {
+        await fetchApi(di['@id'], {
+          method: 'PATCH',
+          body: JSON.stringify({
+            weight: di.weight,
+          }),
+        });
+      } catch (err: any) {
+        setError(err);
+      }
+    }
   };
   const handleAddTag = (tag: Tag) => {
     if (!tags.find((t) => t.name === tag.name)) {
@@ -182,6 +207,15 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
               weight: di.weight,
               dish: savedDish['@id'],
               ingredient: typeof di.ingredient === 'string' ? di.ingredient : di.ingredient?.['@id'],
+            }),
+          });
+        } else {
+          // Update existing dish ingredient if weight changed
+          // We can always update it for simplicity or check if it actually changed
+          await fetchApi(di['@id'], {
+            method: 'PATCH',
+            body: JSON.stringify({
+              weight: di.weight,
             }),
           });
         }
@@ -294,9 +328,18 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
       <ListGroup className="mb-3">
         {dishIngredients.map((di, index) => (
           <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
-            <div>
-              <span className="fw-bold">{(di.ingredient as Ingredient)?.name}</span>
-              {di.weight && <span className="text-muted ms-2">— {di.weight}</span>}
+            <div className="d-flex align-items-center flex-grow-1 me-3">
+              <span className="fw-bold me-3" style={{ minWidth: '150px' }}>
+                {(di.ingredient as Ingredient)?.name}
+              </span>
+              <Form.Control
+                size="sm"
+                placeholder={t('Weight')}
+                value={di.weight || ''}
+                onChange={(e) => handleWeightChange(index, e.target.value)}
+                onBlur={() => handleWeightBlur(index)}
+                style={{ maxWidth: '120px' }}
+              />
             </div>
             <Button variant="outline-danger" size="sm" onClick={() => handleRemoveIngredient(index)}>
               {t('Remove')}
@@ -307,20 +350,37 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
 
       <div className="bg-light p-3 rounded mb-4">
         <h6 className="mb-3">{t('Add Ingredient')}</h6>
-        <InputGroup>
-          <Form.Select value={selectedIngredient} onChange={(e) => setSelectedIngredient(e.target.value)}>
-            <option value="">{t('Select Ingredient')}</option>
-            {ingredients.map((ing) => (
-              <option key={ing['@id']} value={ing['@id']}>
-                {ing.name}
-              </option>
-            ))}
-          </Form.Select>
-          <Form.Control placeholder="Weight (e.g. 500g)" value={weight} onChange={(e) => setWeight(e.target.value)} />
+        <div className="d-flex gap-2 align-items-center">
+          <div className="flex-grow-1">
+            <Select
+              classNamePrefix="react-select"
+              options={ingredients.map((ing) => ({
+                value: ing['@id'] || '',
+                label: ing.name || '',
+              }))}
+              value={
+                selectedIngredient
+                  ? {
+                      value: selectedIngredient,
+                      label: ingredients.find((i) => i['@id'] === selectedIngredient)?.name || '',
+                    }
+                  : null
+              }
+              onChange={(option: any) => setSelectedIngredient(option ? option.value : '')}
+              placeholder={t('Select Ingredient')}
+              isClearable
+            />
+          </div>
+          <Form.Control
+            placeholder={t('weight_example')}
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            style={{ width: '250px' }}
+          />
           <Button variant="outline-primary" onClick={handleAddIngredient}>
             {t('Add')}
           </Button>
-        </InputGroup>
+        </div>
       </div>
 
       <div className="d-flex gap-2">

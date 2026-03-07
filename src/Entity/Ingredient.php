@@ -11,9 +11,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: IngredientRepository::class)]
 #[API\GetCollection(
+    paginationClientEnabled: true,
     parameters: [
         'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
-    ]
+    ],
 )]
 #[API\Get, API\Post, API\Patch, API\Delete]
 class Ingredient
