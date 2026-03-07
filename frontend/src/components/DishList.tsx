@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import {
-  Button,
-  Card,
-  Spinner,
-  Alert,
-  Row,
-  Col,
-  Form,
-  InputGroup,
-  Badge,
-  Collapse,
-} from 'react-bootstrap';
+import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup, Badge, Collapse } from 'react-bootstrap';
 import { Dish, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import Pagination from './Pagination';
@@ -197,10 +186,7 @@ const DishList: React.FC = () => {
           {dishes.map((dish) => (
             <Col key={dish.id || dish['@id']}>
               <Card h-100 className="bg-white shadow h-100">
-                <Link
-                  to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`}
-                  className="text-decoration-none"
-                >
+                <Link to={`/dishes/${dish.id || dish['@id']?.split('/').pop()}`} className="text-decoration-none">
                   <Card.Body>
                     <Card.Title>{dish.name}</Card.Title>
                     <Card.Text className="text-muted">
@@ -211,13 +197,7 @@ const DishList: React.FC = () => {
                     {dish.tags && dish.tags.length > 0 && (
                       <div className="mt-0">
                         {(dish.tags as Tag[]).map((tag, idx) => (
-                          <Badge
-                            key={idx}
-                            bg="primary"
-                            pill={false}
-                            className="me-1"
-                            style={{ fontSize: '0.7rem' }}
-                          >
+                          <Badge key={idx} bg="primary" pill={false} className="me-1" style={{ fontSize: '0.7rem' }}>
                             {tag.name}
                           </Badge>
                         ))}
@@ -231,12 +211,7 @@ const DishList: React.FC = () => {
         </Row>
       )}
 
-      <Pagination
-        currentPage={page}
-        totalItems={totalItems}
-        itemsPerPage={30}
-        onPageChange={setPage}
-      />
+      <Pagination currentPage={page} totalItems={totalItems} itemsPerPage={30} onPageChange={setPage} />
     </div>
   );
 };

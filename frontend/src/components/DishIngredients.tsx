@@ -1,55 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Card, Spinner, Alert, Container, Row, Col } from 'react-bootstrap';
-import { Dish, DishIngredient, Ingredient } from '../types/Dish';
-import { fetchApi } from '../api';
+import { DishIngredient, Ingredient } from '../types/Dish';
+import { useDish } from '../hooks/useDish';
 import ErrorDisplay from './ErrorDisplay';
 
 const DishIngredients: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [dish, setDish] = useState<Dish | null>(null);
-  const [dishIngredients, setDishIngredients] = useState<DishIngredient[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any | null>(null);
-
-  const fetchDish = useCallback(async () => {
-    if (!id) return;
-    try {
-      setLoading(true);
-      const data = await fetchApi(`/api/dishes/${id}`);
-      setDish(data);
-
-      if (data.dishIngredients && Array.isArray(data.dishIngredients)) {
-        const fullIngredients = await Promise.all(
-          data.dishIngredients.map(async (di: any) => {
-            if (typeof di === 'string') {
-              const diData = await fetchApi(di);
-              if (typeof diData.ingredient === 'string') {
-                diData.ingredient = await fetchApi(diData.ingredient);
-              }
-              return diData;
-            }
-            if (di.ingredient && typeof di.ingredient === 'string') {
-              di.ingredient = await fetchApi(di.ingredient);
-            }
-            return di;
-          }),
-        );
-        setDishIngredients(fullIngredients);
-      } else {
-        setDishIngredients([]);
-      }
-      setLoading(false);
-    } catch (err: any) {
-      setError(err);
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    fetchDish();
-  }, [fetchDish]);
+  const { dish, dishIngredients, loading, error, setError } = useDish(id);
+  const [copied, setCopied] = useState(false);
 
   const copyToClipboard = () => {
     const text = dishIngredients
@@ -59,6 +19,8 @@ const DishIngredients: React.FC = () => {
       })
       .join('\n');
     navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (loading) {
@@ -90,12 +52,8 @@ const DishIngredients: React.FC = () => {
           <Card className="shadow">
             <Card.Header className="d-flex justify-content-between align-items-center py-3">
               <h2 className="mb-0">{dish.name} - Ingredients</h2>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                onClick={() => navigate(`/dishes/${id}`)}
-              >
-                Back to Detail
+              <Button variant="outline-secondary" size="sm" onClick={() => navigate(`/dishes/${id}`)}>
+                <i className="bi bi-arrow-left"></i>
               </Button>
             </Card.Header>
             <Card.Body>
@@ -103,16 +61,14 @@ const DishIngredients: React.FC = () => {
                 {dishIngredients.map((di: DishIngredient, index: number) => (
                   <li key={index} className="py-1">
                     <span className="fw-bold">
-                      {typeof di.ingredient === 'object'
-                        ? (di.ingredient as Ingredient).name
-                        : di.ingredient}
+                      {typeof di.ingredient === 'object' ? (di.ingredient as Ingredient).name : di.ingredient}
                     </span>
                     {di.weight && <span className="text-muted ms-2">— {di.weight}</span>}
                   </li>
                 ))}
               </ul>
-              <Button variant="primary" onClick={copyToClipboard}>
-                Copy to Clipboard
+              <Button variant={copied ? 'info' : 'primary'} onClick={copyToClipboard}>
+                {copied ? 'Copied!' : 'Copy to Clipboard'}
               </Button>
             </Card.Body>
           </Card>

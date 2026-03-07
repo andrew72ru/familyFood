@@ -148,9 +148,7 @@ const IngredientManager: React.FC = () => {
           <Form.Control
             type="number"
             value={newIngredientPrice}
-            onChange={(e) =>
-              setNewIngredientPrice(e.target.value === '' ? '' : Number(e.target.value))
-            }
+            onChange={(e) => setNewIngredientPrice(e.target.value === '' ? '' : Number(e.target.value))}
             placeholder="Price"
           />
           <Form.Control
@@ -179,19 +177,13 @@ const IngredientManager: React.FC = () => {
               {editingId === ing['@id'] ? (
                 <>
                   <td>
-                    <Form.Control
-                      value={editingName}
-                      onChange={(e) => setEditingName(e.target.value)}
-                      required
-                    />
+                    <Form.Control value={editingName} onChange={(e) => setEditingName(e.target.value)} required />
                   </td>
                   <td>
                     <Form.Control
                       type="number"
                       value={editingPrice}
-                      onChange={(e) =>
-                        setEditingPrice(e.target.value === '' ? '' : Number(e.target.value))
-                      }
+                      onChange={(e) => setEditingPrice(e.target.value === '' ? '' : Number(e.target.value))}
                       placeholder="Price"
                     />
                   </td>
@@ -230,11 +222,7 @@ const IngredientManager: React.FC = () => {
                     >
                       Edit
                     </Button>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => handleDelete(ing['@id']!)}
-                    >
+                    <Button variant="outline-danger" size="sm" onClick={() => handleDelete(ing['@id']!)}>
                       Delete
                     </Button>
                   </td>
@@ -245,12 +233,7 @@ const IngredientManager: React.FC = () => {
         </tbody>
       </Table>
 
-      <Pagination
-        currentPage={page}
-        totalItems={totalItems}
-        itemsPerPage={30}
-        onPageChange={setPage}
-      />
+      <Pagination currentPage={page} totalItems={totalItems} itemsPerPage={30} onPageChange={setPage} />
     </div>
   );
 };

@@ -43,9 +43,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   }, [tagInput]);
 
   useEffect(() => {
-    fetchApi('/api/ingredients').then((data) =>
-      setIngredients(data['hydra:member'] || data['member'] || []),
-    );
+    fetchApi('/api/ingredients').then((data) => setIngredients(data['hydra:member'] || data['member'] || []));
     if (dish) {
       const loadData = async () => {
         setLoading(true);
@@ -133,9 +131,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           // Try to find tag by name again just in case
           const data = await fetchApi(`/api/tags?search[name]=${encodeURIComponent(tag.name!)}`);
           const existingTags = data['hydra:member'] || data['member'] || [];
-          const match = existingTags.find(
-            (t: Tag) => t.name?.toLowerCase() === tag.name?.toLowerCase(),
-          );
+          const match = existingTags.find((t: Tag) => t.name?.toLowerCase() === tag.name?.toLowerCase());
           if (match) return match['@id'];
 
           // Create new tag
@@ -174,8 +170,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
             body: JSON.stringify({
               weight: di.weight,
               dish: savedDish['@id'],
-              ingredient:
-                typeof di.ingredient === 'string' ? di.ingredient : di.ingredient?.['@id'],
+              ingredient: typeof di.ingredient === 'string' ? di.ingredient : di.ingredient?.['@id'],
             }),
           });
         }
@@ -204,12 +199,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
 
       <Form.Group className="mb-3">
         <Form.Label>Name</Form.Label>
-        <Form.Control
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          placeholder="Enter dish name"
-        />
+        <Form.Control value={name} onChange={(e) => setName(e.target.value)} required placeholder="Enter dish name" />
       </Form.Group>
 
       <Form.Group className="mb-3">
@@ -229,11 +219,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           {tags.map((tag, idx) => (
             <Badge key={idx} bg="primary" className="me-2 p-2">
               {tag.name}
-              <span
-                className="ms-2"
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleRemoveTag(tag.name!)}
-              >
+              <span className="ms-2" style={{ cursor: 'pointer' }} onClick={() => handleRemoveTag(tag.name!)}>
                 &times;
               </span>
             </Badge>
@@ -258,17 +244,9 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
             </Button>
           </InputGroup>
           {suggestedTags.length > 0 && (
-            <ListGroup
-              className="position-absolute w-100 shadow"
-              style={{ zIndex: 1000, top: '100%' }}
-            >
+            <ListGroup className="position-absolute w-100 shadow" style={{ zIndex: 1000, top: '100%' }}>
               {suggestedTags.map((tag) => (
-                <ListGroup.Item
-                  key={tag['@id']}
-                  action
-                  onClick={() => handleAddTag(tag)}
-                  className="py-2"
-                >
+                <ListGroup.Item key={tag['@id']} action onClick={() => handleAddTag(tag)} className="py-2">
                   {tag.name}
                 </ListGroup.Item>
               ))}
@@ -307,11 +285,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
               <span className="fw-bold">{(di.ingredient as Ingredient)?.name}</span>
               <span className="text-muted ms-2">— {di.weight}</span>
             </div>
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={() => handleRemoveIngredient(index)}
-            >
+            <Button variant="outline-danger" size="sm" onClick={() => handleRemoveIngredient(index)}>
               Remove
             </Button>
           </ListGroup.Item>
@@ -321,10 +295,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
       <div className="bg-light p-3 rounded mb-4">
         <h6 className="mb-3">Add Ingredient</h6>
         <InputGroup>
-          <Form.Select
-            value={selectedIngredient}
-            onChange={(e) => setSelectedIngredient(e.target.value)}
-          >
+          <Form.Select value={selectedIngredient} onChange={(e) => setSelectedIngredient(e.target.value)}>
             <option value="">Select Ingredient</option>
             {ingredients.map((ing) => (
               <option key={ing['@id']} value={ing['@id']}>
@@ -332,11 +303,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
               </option>
             ))}
           </Form.Select>
-          <Form.Control
-            placeholder="Weight (e.g. 500g)"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-          />
+          <Form.Control placeholder="Weight (e.g. 500g)" value={weight} onChange={(e) => setWeight(e.target.value)} />
           <Button variant="outline-primary" onClick={handleAddIngredient}>
             Add
           </Button>

@@ -92,12 +92,7 @@ const AdminDishList: React.FC = () => {
             </tbody>
           </Table>
 
-          <Pagination
-            currentPage={page}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setPage}
-          />
+          <Pagination currentPage={page} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setPage} />
         </>
       )}
     </Container>

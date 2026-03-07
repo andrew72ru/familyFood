@@ -145,11 +145,7 @@ const TagManager: React.FC = () => {
             <tr key={tag['@id']}>
               <td>
                 {editingId === tag['@id'] ? (
-                  <Form.Control
-                    value={editingName}
-                    onChange={(e) => setEditingName(e.target.value)}
-                    required
-                  />
+                  <Form.Control value={editingName} onChange={(e) => setEditingName(e.target.value)} required />
                 ) : (
                   tag.name
                 )}
@@ -157,19 +153,10 @@ const TagManager: React.FC = () => {
               <td>
                 {editingId === tag['@id'] ? (
                   <>
-                    <Button
-                      variant="outline-success"
-                      size="sm"
-                      className="me-2"
-                      onClick={handleUpdate}
-                    >
+                    <Button variant="outline-success" size="sm" className="me-2" onClick={handleUpdate}>
                       Save
                     </Button>
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={() => setEditingId(null)}
-                    >
+                    <Button variant="outline-secondary" size="sm" onClick={() => setEditingId(null)}>
                       Cancel
                     </Button>
                   </>
@@ -186,11 +173,7 @@ const TagManager: React.FC = () => {
                     >
                       Edit
                     </Button>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => handleDelete(tag['@id']!)}
-                    >
+                    <Button variant="outline-danger" size="sm" onClick={() => handleDelete(tag['@id']!)}>
                       Delete
                     </Button>
                   </>
@@ -208,12 +191,7 @@ const TagManager: React.FC = () => {
         </tbody>
       </Table>
 
-      <Pagination
-        currentPage={page}
-        totalItems={totalItems}
-        itemsPerPage={30}
-        onPageChange={setPage}
-      />
+      <Pagination currentPage={page} totalItems={totalItems} itemsPerPage={30} onPageChange={setPage} />
     </div>
   );
 };

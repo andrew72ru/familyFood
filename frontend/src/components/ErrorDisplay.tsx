@@ -15,12 +15,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error, onClose, className }
   const message = typeof error === 'string' ? error : error.message || 'An unknown error occurred';
 
   return (
-    <Alert
-      variant="danger"
-      dismissible={!!onClose}
-      onClose={onClose}
-      className={className || 'mt-3'}
-    >
+    <Alert variant="danger" dismissible={!!onClose} onClose={onClose} className={className || 'mt-3'}>
       <div className="fw-bold">{message}</div>
       {isDev && error instanceof ApiError && (
         <div className="mt-2 pt-2 border-top">

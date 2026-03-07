@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  NavLink,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Container, Nav, Navbar } from 'react-bootstrap';
 import DishList from './components/DishList';
 import IngredientManager from './components/IngredientManager';
@@ -22,6 +14,10 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 
 const TopNavigation = () => {
   const location = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   if (location.pathname === '/login') {
     return null;
@@ -93,11 +89,7 @@ const BottomNavigation = () => {
         </Navbar.Brand>
         <Nav className="ms-auto">
           {isAuthenticated ? (
-            <Nav.Link
-              as="button"
-              className="btn btn-outline-secondary text-light opacity-75"
-              onClick={handleLogout}
-            >
+            <Nav.Link as="button" className="btn btn-outline-secondary text-light opacity-75" onClick={handleLogout}>
               Logout
             </Nav.Link>
           ) : (
