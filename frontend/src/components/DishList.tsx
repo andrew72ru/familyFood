@@ -155,7 +155,7 @@ const DishList: React.FC = () => {
           aria-expanded={isTagsOpen}
           className="d-block d-lg-none d-xxl-none mb-2"
         >
-          {isTagsOpen ? 'Hide tags' : 'Show tags'}
+          {isTagsOpen ? t('Hide tags') : t('Show tags')}
         </Button>
         <Collapse in={isTagsOpen}>
           <div id="tags-collapse">

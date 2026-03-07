@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Card, ListGroup, Spinner, Alert, Container, Row, Col, Badge, Accordion } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { DishIngredient, Ingredient, Tag } from '../types/Dish';
@@ -17,7 +17,20 @@ const DishDetail: React.FC = () => {
   const [isFetchingRecipe, setIsFetchingRecipe] = useState(false);
   const [isExtractingIngredients, setIsExtractingIngredients] = useState(false);
   const [recipeFeedback, setRecipeFeedback] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const { t } = useTranslation();
+
+  const copyToClipboard = () => {
+    const text = dishIngredients
+      .map((di) => {
+        const name = typeof di.ingredient === 'object' ? di.ingredient.name : di.ingredient;
+        return di.weight ? `${name} — ${di.weight}` : name;
+      })
+      .join('\n');
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDelete = async () => {
     if (!dish?.['@id'] || !window.confirm('Are you sure?')) return;
@@ -219,9 +232,14 @@ const DishDetail: React.FC = () => {
                 </Accordion>
                 {dishIngredients.length > 0 && (
                   <div className="d-grid px-1 mt-3">
-                    <Link to={`/dishes/${dish.id}/ingredients`} className="btn btn-primary btn-block btn-lg">
-                      {t('Ingredients only')}
-                    </Link>
+                    <Button
+                      variant={copied ? 'info' : 'primary'}
+                      onClick={copyToClipboard}
+                      className="d-flex align-items-start"
+                    >
+                      <i className="bi bi-clipboard-check-fill me-2"></i>
+                      <span className="text-start">{copied ? t('Copied!') : t('Copy to Clipboard')}</span>
+                    </Button>
                   </div>
                 )}
               </div>
