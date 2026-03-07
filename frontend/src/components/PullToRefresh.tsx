@@ -24,7 +24,14 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, children }) =>
 
   const handleTouchStart = (e: TouchEvent) => {
     // Only allow pull to start if we are at the very top of the scroll
-    if (window.scrollY === 0) {
+    // and not starting from an input/textarea
+    const target = e.target as HTMLElement;
+    if (
+      window.scrollY === 0 &&
+      target.tagName !== 'TEXTAREA' &&
+      target.tagName !== 'INPUT' &&
+      !target.isContentEditable
+    ) {
       setStartY(e.touches[0].pageY);
       setCanPull(true);
     } else {
@@ -35,6 +42,12 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({ onRefresh, children }) =>
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
       if (!canPull || isRefreshing) return;
+
+      // Don't interfere if a user is scrolling inside a textarea or input
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT' || target.isContentEditable) {
+        return;
+      }
 
       const currentY = e.touches[0].pageY;
       const diff = currentY - startY;
