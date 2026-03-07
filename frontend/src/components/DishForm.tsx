@@ -296,10 +296,10 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
             <div>
               <span className="fw-bold">{(di.ingredient as Ingredient)?.name}</span>
-              <span className="text-muted ms-2">— {di.weight}</span>
+              {di.weight && <span className="text-muted ms-2">— {di.weight}</span>}
             </div>
             <Button variant="outline-danger" size="sm" onClick={() => handleRemoveIngredient(index)}>
-              Remove
+              {t('Remove')}
             </Button>
           </ListGroup.Item>
         ))}

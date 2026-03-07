@@ -178,12 +178,11 @@ const DishDetail: React.FC = () => {
               <div className="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center">
                 <Accordion className="w-100 me-md-4">
                   <Accordion.Item eventKey="0">
-                    <Accordion.Header>Actions</Accordion.Header>
+                    <Accordion.Header>{t('Actions')}</Accordion.Header>
                     <Accordion.Body>
-                      <div className="d-grid gap-2 d-md-block">
+                      <div className="d-grid gap-2 d-block">
                         <Button
                           variant="outline-primary"
-                          className="me-md-2"
                           onClick={handleGetRecipe}
                           disabled={isFetchingRecipe || (!!dish?.recipe?.text && dish.recipe.text.trim() !== '')}
                         >
@@ -193,12 +192,11 @@ const DishDetail: React.FC = () => {
                               {t('Requesting')}...
                             </>
                           ) : (
-                            'Get a recipe'
+                            t('Get a recipe')
                           )}
                         </Button>
                         <Button
                           variant="outline-primary"
-                          className="me-md-2"
                           onClick={handleExtractIngredients}
                           disabled={
                             isExtractingIngredients || !dish?.recipe?.text?.trim() || dishIngredients.length > 0
@@ -206,21 +204,14 @@ const DishDetail: React.FC = () => {
                         >
                           {isExtractingIngredients ? (
                             <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                                className="me-2"
-                              />
+                              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                               {t('Extracting')}...
                             </>
                           ) : (
-                            'Extract ingredients'
+                            t('Extract ingredients')
                           )}
                         </Button>
-                        <Button variant="primary" className="me-md-2" onClick={() => setIsEditing(true)}>
+                        <Button variant="primary" onClick={() => setIsEditing(true)}>
                           {t('Edit Dish')}
                         </Button>
                         <Button variant="danger" onClick={handleDelete}>

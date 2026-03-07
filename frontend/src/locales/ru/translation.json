@@ -23,6 +23,10 @@
     "ingredients": "Извлекаем ингредиенты",
     "recipe": "Генерируем рецепт"
   },
+  "Remove": "Удалить",
+  "Actions": "Действия",
+  "Get a recipe": "Спросить рецепт",
+  "Extract ingredients": "Извлечь ингредиенты",
   "Extracting": "Извлекаем",
   "Extracting ingredients": {
     " If everything's ok, after a minute you'll see an ingredients list": "Если всё прошло хорошо, через несколько секунд будет доступен список ингредиентов."
