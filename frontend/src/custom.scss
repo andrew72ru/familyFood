@@ -43,3 +43,9 @@ $info: $colors-light-gray;
 .navbar.bg-dark {
   background-color: rgba(33, 37, 41, 0.7) !important;
 }
+
+.recipe-body {
+    p {
+        margin-bottom: 0.3rem;
+    }
+}

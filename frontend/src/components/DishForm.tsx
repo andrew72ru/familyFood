@@ -6,6 +6,8 @@ import { Dish, Ingredient, DishIngredient, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
 import ErrorDisplay from './ErrorDisplay';
 import { useTranslation } from 'react-i18next';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 interface DishFormProps {
   dish?: Dish;
@@ -32,10 +34,11 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   useEffect(() => {
     if (recipeRef.current) {
       recipeRef.current.style.height = 'auto';
-      const newHeight = Math.max(recipeRef.current.scrollHeight, 100); // 100px is approx 4 rows
+      // Height for all text + 3 extra lines (approx 75px extra, assuming 25px per line)
+      const newHeight = Math.max(recipeRef.current.scrollHeight + 75, 100);
       recipeRef.current.style.height = `${newHeight}px`;
     }
-  }, [recipeText]);
+  }, []); // Only on mount
 
   useEffect(() => {
     const fetchSuggestedTags = async () => {
@@ -259,7 +262,7 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
       </Form.Group>
 
       <Form.Group className="mb-4">
-        <Form.Label>Tags</Form.Label>
+        <Form.Label>{t('Tags')}</Form.Label>
         <div className="mb-2">
           {tags.map((tag, idx) => (
             <Badge key={idx} bg="primary" className="me-2 p-2">
@@ -312,12 +315,14 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
               value={recipeText}
               onChange={(e) => setRecipeText(e.target.value)}
               placeholder={t('Enter recipe instructions (Markdown supported)')}
-              style={{ overflow: 'hidden' }}
+              style={{ overflowY: 'auto' }}
             />
           </Tab>
           <Tab eventKey="preview" title={t('Preview')}>
             <div className="p-3 border rounded bg-white" style={{ minHeight: '106px' }}>
-              <ReactMarkdown>{recipeText || '*No recipe content*'}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                {recipeText || '*No recipe content*'}
+              </ReactMarkdown>
             </div>
           </Tab>
         </Tabs>

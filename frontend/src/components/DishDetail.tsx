@@ -8,6 +8,8 @@ import { useDish } from '../hooks/useDish';
 import DishForm from './DishForm';
 import ErrorDisplay from './ErrorDisplay';
 import { useTranslation } from 'react-i18next';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 const DishDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -137,7 +139,7 @@ const DishDetail: React.FC = () => {
                 <i className="bi bi-arrow-clockwise"></i>
               </Button>
             </Card.Header>
-            <Card.Body>
+            <Card.Body className="recipe-body">
               <div className="mb-4">
                 <h5 className="text-muted border-bottom pb-2">{t('Description')}</h5>
                 <p>{dish.description || t('No description provided.')}</p>
@@ -147,7 +149,7 @@ const DishDetail: React.FC = () => {
                 <div className="mb-4">
                   <h5 className="text-muted border-bottom pb-2">Recipe</h5>
                   <div className="markdown-body">
-                    <ReactMarkdown>{dish.recipe.text || ''}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{dish.recipe.text || ''}</ReactMarkdown>
                   </div>
                 </div>
               )}
