@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, ListGroup, InputGroup, Spinner, Tabs, Tab, Badge } from 'react-bootstrap';
 import ReactMarkdown from 'react-markdown';
 import { Dish, Ingredient, DishIngredient, Tag } from '../types/Dish';
@@ -26,6 +26,15 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
   const [error, setError] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
+  const recipeRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (recipeRef.current) {
+      recipeRef.current.style.height = 'auto';
+      const newHeight = Math.max(recipeRef.current.scrollHeight, 100); // 100px is approx 4 rows
+      recipeRef.current.style.height = `${newHeight}px`;
+    }
+  }, [recipeText]);
 
   useEffect(() => {
     const fetchSuggestedTags = async () => {
@@ -264,10 +273,12 @@ const DishForm: React.FC<DishFormProps> = ({ dish, onSave, onCancel }) => {
           <Tab eventKey="edit" title="Edit">
             <Form.Control
               as="textarea"
-              rows={35}
+              ref={recipeRef}
+              rows={4}
               value={recipeText}
               onChange={(e) => setRecipeText(e.target.value)}
               placeholder={t('Enter recipe instructions (Markdown supported)')}
+              style={{ overflow: 'hidden' }}
             />
           </Tab>
           <Tab eventKey="preview" title={t('Preview')}>

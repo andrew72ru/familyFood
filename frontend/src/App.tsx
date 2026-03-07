@@ -15,13 +15,16 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 const TopNavigation = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const [expanded, setExpanded] = React.useState(false);
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    setExpanded(false);
   };
 
   React.useEffect(() => {
     window.scrollTo(0, 0);
+    setExpanded(false);
   }, [location.pathname]);
 
   if (location.pathname === '/login') {
@@ -29,9 +32,17 @@ const TopNavigation = () => {
   }
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" className="mb-4 shadow-sm" sticky="top">
+    <Navbar
+      bg="dark"
+      variant="dark"
+      expand="lg"
+      className="mb-4 shadow-sm"
+      sticky="top"
+      expanded={expanded}
+      onToggle={setExpanded}
+    >
       <Container>
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center" onClick={() => setExpanded(false)}>
           <img
             alt={t('common.app_name')}
             src="/icon.svg"
