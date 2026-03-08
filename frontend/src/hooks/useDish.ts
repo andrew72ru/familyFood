@@ -13,7 +13,9 @@ export const useDish = (id: string | undefined) => {
     if (!id) return;
     try {
       setLoading(true);
-      const data = await fetchApi(`/api/dishes/${id}`);
+      const data = await fetchApi(`/api/dishes/${id}`, {
+        preload: '/api/dish_ingredients/*',
+      });
       setDish(data);
 
       // Fetch full dish ingredients if they are IRIs
@@ -24,7 +26,9 @@ export const useDish = (id: string | undefined) => {
               const diData = await fetchApi(di);
               // Also fetch nested ingredient if it's an IRI
               if (typeof diData.ingredient === 'string') {
-                diData.ingredient = await fetchApi(diData.ingredient);
+                diData.ingredient = await fetchApi(diData.ingredient, {
+                  preload: '/api/ingredients/*',
+                });
               }
               return diData;
             }

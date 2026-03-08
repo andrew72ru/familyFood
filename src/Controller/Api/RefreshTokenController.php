@@ -17,7 +17,12 @@ final class RefreshTokenController extends AbstractController
     ) {
     }
 
-    #[Route('/api/refresh_token', name: 'api_refresh_token', methods: ['POST'])]
+    #[Route(
+        path: '/api/refresh_token',
+        name: 'api_refresh_token',
+        methods: ['POST'],
+        format: 'json',
+    )]
     public function __invoke(Request $request): Response
     {
         $data = \json_decode($request->getContent(), true);

@@ -12,7 +12,7 @@ export class ApiError extends Error {
   }
 }
 
-export const fetchApi = async (path: string, options: RequestInit = {}): Promise<any> => {
+export const fetchApi = async (path: string, options: RequestInit & { preload?: string } = {}): Promise<any> => {
   const url = `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
 
   const headers = new Headers(options.headers || {});
@@ -22,6 +22,10 @@ export const fetchApi = async (path: string, options: RequestInit = {}): Promise
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  if (options.preload) {
+    headers.set('Preload', options.preload);
+  }
+
   if (!headers.has('Accept')) {
     headers.set('Accept', 'application/ld+json');
   }
@@ -29,7 +33,7 @@ export const fetchApi = async (path: string, options: RequestInit = {}): Promise
     headers.set('Content-Type', options.method === 'PATCH' ? 'application/merge-patch+json' : 'application/ld+json');
   }
 
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
   if (response.status === 204) {
     return null;
@@ -54,6 +58,7 @@ export const fetchApi = async (path: string, options: RequestInit = {}): Promise
               Accept: 'application/ld+json',
             },
             body: JSON.stringify({ refresh_token: refreshToken }),
+            credentials: 'include',
           });
 
           if (refreshResponse.ok) {

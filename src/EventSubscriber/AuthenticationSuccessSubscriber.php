@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class AuthenticationSuccessSubscriber implements EventSubscriberInterface
 {
-    private const REFRESH_TOKEN_EXPIRATION = 31536000; // 1 year in seconds
+    private const int REFRESH_TOKEN_EXPIRATION = 31536000; // 1 year in seconds
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -49,16 +49,24 @@ final class AuthenticationSuccessSubscriber implements EventSubscriberInterface
         $refreshTokenString = $this->jwtManager->createFromPayload($user, $payload);
 
         // Store in DB
-        $refreshToken = new RefreshToken();
-        $refreshToken->setUser($user);
+        $refreshToken = $this->entityManager->getRepository(RefreshToken::class)->findOneBy(['user' => $user]);
+
+        if (!$refreshToken instanceof RefreshToken) {
+            $refreshToken = new RefreshToken();
+            $refreshToken->setUser($user);
+            $this->entityManager->persist($refreshToken);
+        }
+
         $refreshToken->setToken($refreshTokenString);
         $refreshToken->setExpiresAt((new \DateTimeImmutable())->modify(\sprintf('+%d seconds', self::REFRESH_TOKEN_EXPIRATION)));
 
-        $this->entityManager->persist($refreshToken);
         $this->entityManager->flush();
 
         // Add to response data
         $data = $event->getData();
+        if (!isset($data['token'])) {
+            $data['token'] = $this->jwtManager->create($user);
+        }
         $data['refresh_token'] = $refreshTokenString;
         $data['refresh_token_expiration'] = self::REFRESH_TOKEN_EXPIRATION;
         $event->setData($data);

@@ -42,7 +42,9 @@ const DishList: React.FC = () => {
           url += `&tags[]=${encodeURIComponent(tagIri)}`;
         });
       }
-      const data = await fetchApi(url);
+      const data = await fetchApi(url, {
+        preload: '/api/dish_ingredients/*',
+      });
       const fetchedDishes = data['hydra:member'] || data['member'] || [];
       setDishes(fetchedDishes);
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);

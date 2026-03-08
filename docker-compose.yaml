@@ -48,7 +48,23 @@ services:
         echo "Restore done."
     restart: no
 
+  caddy:
+    build:
+      context: .docker/dev/caddy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/srv/app
+      - ./.docker/dev/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
+  caddy_data:
+  caddy_config:

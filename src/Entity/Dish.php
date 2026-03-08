@@ -53,6 +53,7 @@ class Dish
      */
     #[ORM\OneToMany(targetEntity: DishIngredient::class, mappedBy: 'dish', orphanRemoval: true)]
     #[Groups(['dish:read'])]
+    #[API\ApiProperty(push: true)]
     private Collection $dishIngredients;
 
     /**

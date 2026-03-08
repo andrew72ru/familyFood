@@ -33,6 +33,7 @@ class DishIngredient
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[Groups(['ingredient:read'])]
+    #[API\ApiProperty(push: true)]
     private Ingredient | null $ingredient = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

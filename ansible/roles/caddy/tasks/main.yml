@@ -4,6 +4,7 @@
       - gnupg
       - ca-certificates
       - curl
+      - golang-go
     state: present
 
 - name: Create keyrings directory
@@ -28,6 +29,35 @@
     name: caddy
     state: present
     update_cache: "{{ 'yes' if ansible_distribution_release == 'plucky' else 'no' }}"
+
+- name: Install xcaddy
+  shell: "go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest"
+  args:
+    creates: /root/go/bin/xcaddy
+  environment:
+    GOPATH: /root/go
+
+- name: Build Caddy with Vulcain module
+  shell: "/root/go/bin/xcaddy build --with github.com/dunglas/vulcain/caddy"
+  args:
+    chdir: /tmp
+    creates: /tmp/caddy
+  environment:
+    GOPATH: /root/go
+
+- name: Stop Caddy service to swap binary
+  service:
+    name: caddy
+    state: stopped
+
+- name: Replace standard Caddy binary with custom build
+  copy:
+    src: /tmp/caddy
+    dest: /usr/bin/caddy
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
 
 - name: Add caddy user to www-data group
   user:

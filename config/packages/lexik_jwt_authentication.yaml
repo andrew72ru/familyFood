@@ -2,3 +2,33 @@ lexik_jwt_authentication:
     secret_key: '%env(base64:JWT_SECRET_KEY)%'
     public_key: '%env(base64:JWT_PUBLIC_KEY)%'
     pass_phrase: '%env(JWT_PASSPHRASE)%'
+
+    token_extractors:
+        authorization_header:
+            enabled: true
+            prefix: Bearer
+            name: Authorization
+        cookie:
+            enabled: true
+            name: BEARER
+
+    remove_token_from_body_when_cookies_used: false
+    set_cookies:
+        BEARER:
+            lifetime: 3600
+            path: /
+            domain: null
+            secure: true
+            httpOnly: true
+            samesite: lax
+        refresh_token:
+            lifetime: 2592000
+            path: /
+            domain: null
+            secure: true
+            httpOnly: true
+            samesite: lax
+
+when@dev:
+    lexik_jwt_authentication:
+        token_ttl: 36000
