@@ -78,6 +78,33 @@ export const useDish = (id: string | undefined) => {
       topics.add(`${process.env.REACT_APP_API_URL}${diCollectionTopic}`);
     }
 
+    // Add RecipeComment collection topic to catch new comments being added
+    const rcCollectionTopic = '/api/recipe_comments';
+    topics.add(rcCollectionTopic);
+    topics.add(`${window.location.origin}${rcCollectionTopic}`);
+    if (process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL !== window.location.origin) {
+      topics.add(`${process.env.REACT_APP_API_URL}${rcCollectionTopic}`);
+    }
+
+    // Add every current comment as a topic (to catch updates to existing comments)
+    recipeComments.forEach((rc) => {
+      if (rc['@id']) {
+        let rcId = rc['@id'];
+        if (rcId.startsWith('http')) {
+          try {
+            rcId = new URL(rcId).pathname;
+          } catch (e) {}
+        }
+        topics.add(rcId);
+        if (rcId.startsWith('/')) {
+          topics.add(`${window.location.origin}${rcId}`);
+          if (process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL !== window.location.origin) {
+            topics.add(`${process.env.REACT_APP_API_URL}${rcId}`);
+          }
+        }
+      }
+    });
+
     if (topics.size > 0) {
       const sortedTopics = Array.from(topics).sort();
       setMercureTopics((prev) => {
@@ -87,7 +114,7 @@ export const useDish = (id: string | undefined) => {
         return sortedTopics;
       });
     }
-  }, [dish, dishIngredients]);
+  }, [dish, dishIngredients, recipeComments, id]);
 
   const fetchDish = useCallback(async () => {
     if (!id) return;
@@ -148,8 +175,19 @@ export const useDish = (id: string | undefined) => {
 
       // Fetch recipe comments using the sub-resource endpoint
       const commentsData = await fetchApi(`/api/dishes/${id}/recipe_comments`);
-      const comments =
+      const commentsRaw =
         commentsData?.['hydra:member'] || commentsData?.['member'] || (Array.isArray(commentsData) ? commentsData : []);
+
+      // Normalize comment IRIs
+      const comments = commentsRaw.map((rc: any) => {
+        if (rc['@id'] && rc['@id'].startsWith('http')) {
+          try {
+            rc['@id'] = new URL(rc['@id']).pathname;
+          } catch (e) {}
+        }
+        return rc;
+      });
+
       setRecipeComments(comments);
 
       setLoading(false);
@@ -227,6 +265,34 @@ export const useDish = (id: string | undefined) => {
             console.error('[useDish] Failed to sync dishIngredients', err);
           }
         }
+        // If recipeComments were updated in the Dish object, we need to sync them
+        if (data.recipeComments && Array.isArray(data.recipeComments)) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[useDish] Syncing recipeComments from Dish update');
+          }
+          try {
+            const fullComments = await Promise.all(
+              data.recipeComments.map(async (rc: any) => {
+                let rcData = rc;
+                if (typeof rc === 'string') {
+                  rcData = await fetchApi(rc);
+                }
+
+                // Normalize RecipeComment @id
+                if (rcData['@id'] && rcData['@id'].startsWith('http')) {
+                  try {
+                    rcData['@id'] = new URL(rcData['@id']).pathname;
+                  } catch (e) {}
+                }
+                return rcData;
+              }),
+            );
+            // Sort by creation date if available (usually descending)
+            setRecipeComments(fullComments);
+          } catch (err) {
+            console.error('[useDish] Failed to sync recipeComments', err);
+          }
+        }
       } else if (data['@type'] === 'DishIngredient' || normalizedUpdateId.includes('/api/dish_ingredients/')) {
         if (process.env.NODE_ENV === 'development') {
           console.log('[useDish] Updating dishIngredients state for DishIngredient');
@@ -291,6 +357,65 @@ export const useDish = (id: string | undefined) => {
             }
             return di;
           });
+        });
+      } else if (data['@type'] === 'RecipeComment' || normalizedUpdateId.includes('/api/recipe_comments/')) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[useDish] Updating recipeComments state for RecipeComment');
+        }
+
+        // If the update is partial (e.g. from POST and missing fields), fetch the full data
+        let fullData = data;
+        if (!data.text || !data.dish) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[useDish] RecipeComment update is partial, fetching full data');
+          }
+          try {
+            fullData = await fetchApi(normalizedUpdateId);
+          } catch (err) {
+            console.error('[useDish] Failed to fetch full RecipeComment data', err);
+          }
+        }
+
+        // Normalize ID
+        if (fullData['@id'] && fullData['@id'].startsWith('http')) {
+          try {
+            fullData['@id'] = new URL(fullData['@id']).pathname;
+          } catch (e) {}
+        }
+
+        setRecipeComments((prev) => {
+          const index = prev.findIndex((rc) => {
+            let rcId = rc['@id'];
+            if (rcId && rcId.startsWith('http')) {
+              try {
+                rcId = new URL(rcId).pathname;
+              } catch (e) {}
+            }
+            return rcId === normalizedUpdateId;
+          });
+
+          if (index !== -1) {
+            const newComments = [...prev];
+            newComments[index] = { ...newComments[index], ...fullData };
+            return newComments;
+          }
+
+          // Normalize parent dish IRI from update
+          let parentDishIri = fullData.dish;
+          if (typeof parentDishIri === 'object' && parentDishIri?.['@id']) {
+            parentDishIri = parentDishIri['@id'];
+          }
+          if (typeof parentDishIri === 'string' && parentDishIri.startsWith('http')) {
+            try {
+              parentDishIri = new URL(parentDishIri).pathname;
+            } catch (e) {}
+          }
+
+          // Also check if it's currently on this dish's sub-resource
+          if (parentDishIri === `/api/dishes/${id}`) {
+            return [fullData, ...prev]; // Comments are usually prepended (desc order)
+          }
+          return prev;
         });
       } else if (process.env.NODE_ENV === 'development') {
         console.log('[useDish] Update did not match any criteria', { normalizedUpdateId, type: data['@type'] });

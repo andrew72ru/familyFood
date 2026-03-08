@@ -10,23 +10,31 @@ use Gedmo\Mapping\Annotation\Timestampable;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: RecipeCommentRepository::class)]
-#[ApiResource(
-    operations: [
-        new GetCollection(order: ['createdAt' => 'desc']),
-        new GetCollection(
-            uriTemplate: '/dishes/{id}/recipe_comments',
-            uriVariables: [
-                'id' => new Link(toProperty: 'dish', fromClass: Dish::class),
-            ],
-            order: ['createdAt' => 'desc'],
-            normalizationContext: ['groups' => ['recipe_comment:read']],
-            mercure: true,
-        ),
-        new Get(),
-        new Post(),
-        new Patch(),
+#[GetCollection(
+    order: ['createdAt' => 'desc'],
+    normalizationContext: ['groups' => ['recipe_comment:read']],
+    mercure: true
+)]
+#[GetCollection(
+    uriTemplate: '/dishes/{id}/recipe_comments',
+    uriVariables: [
+        'id' => new Link(toProperty: 'dish', fromClass: Dish::class),
     ],
+    order: ['createdAt' => 'desc'],
+    normalizationContext: ['groups' => ['recipe_comment:read']],
     mercure: true,
+)]
+#[Get(
+    normalizationContext: ['groups' => ['recipe_comment:read']],
+    mercure: true
+)]
+#[Post(
+    normalizationContext: ['groups' => ['recipe_comment:read']],
+    mercure: true
+)]
+#[Patch(
+    normalizationContext: ['groups' => ['recipe_comment:read']],
+    mercure: true
 )]
 class RecipeComment
 {
@@ -39,6 +47,7 @@ class RecipeComment
     private string | null $text = null;
 
     #[ORM\ManyToOne(inversedBy: 'recipeComments')]
+    #[Groups(['recipe_comment:read'])]
     private Dish | null $dish = null;
 
     #[ORM\Column(nullable: true)]
