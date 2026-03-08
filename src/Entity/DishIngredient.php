@@ -15,9 +15,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
         'id' => new API\Link(toProperty: 'dish', fromClass: Dish::class),
     ],
     order: ['ingredient.name' => 'asc'],
-    normalizationContext: ['groups' => ['ingredient:read']]
+    normalizationContext: ['groups' => ['ingredient:read']],
+    mercure: true
 )]
-#[API\Get, API\Post, API\Patch, API\GetCollection]
+#[API\Get(mercure: true), API\Post, API\Patch(mercure: true), API\GetCollection(mercure: true)]
 class DishIngredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

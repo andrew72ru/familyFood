@@ -1,32 +1,43 @@
 https://localhost:443 {
-    tls internal
-    # Vulcain module
-    vulcain
+	tls internal
 
-    # Handle Symfony API
-    handle /api* {
-        reverse_proxy host.docker.internal:8000 {
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
+	# Vulcain module
+	vulcain
 
-    handle /images* {
-        reverse_proxy host.docker.internal:8000
-    }
+	# Mercure hub
+	handle /.well-known/mercure* {
+		mercure {
+			publisher_jwt {$MERCURE_PUBLISHER_JWT_KEY}
+			subscriber_jwt {$MERCURE_SUBSCRIBER_JWT_KEY}
+			anonymous
+			ui
+		}
+	}
 
-    handle /bundles* {
-        reverse_proxy host.docker.internal:8000
-    }
+	# Handle Symfony API
+	handle /api* {
+		reverse_proxy host.docker.internal:8000 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
 
-    # Handle React frontend (proxy to npm start dev server)
-    handle {
-        reverse_proxy host.docker.internal:3000
-    }
+	handle /images* {
+		reverse_proxy host.docker.internal:8000
+	}
 
-    log {
-        output stdout
-    }
+	handle /bundles* {
+		reverse_proxy host.docker.internal:8000
+	}
+
+	# Handle React frontend (proxy to npm start dev server)
+	handle {
+		reverse_proxy host.docker.internal:3000
+	}
+
+	log {
+		output stdout
+	}
 }

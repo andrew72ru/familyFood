@@ -37,11 +37,10 @@
   environment:
     GOPATH: /root/go
 
-- name: Build Caddy with Vulcain module
-  shell: "/root/go/bin/xcaddy build --with github.com/dunglas/vulcain/caddy"
+- name: Build Caddy with Vulcain and Mercure modules
+  shell: "/root/go/bin/xcaddy build --with github.com/dunglas/vulcain/caddy --with github.com/dunglas/mercure/caddy"
   args:
     chdir: /tmp
-    creates: /tmp/caddy
   environment:
     GOPATH: /root/go
 

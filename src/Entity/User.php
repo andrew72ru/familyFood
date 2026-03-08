@@ -145,7 +145,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see UserInterface
      */
-    #[\Override]
+    #[\Override, \Deprecated]
     public function eraseCredentials(): void
     {
         $this->plainPassword = null;

@@ -2,6 +2,15 @@
     # Vulcain module
     vulcain
 
+    route /.well-known/mercure* {
+        # Mercure hub
+        mercure {
+            publisher_jwt {{ mercure_publisher_jwt_key }}
+            subscriber_jwt {{ mercure_subscriber_jwt_key }}
+            anonymous
+        }
+    }
+
     # If app_root doesn't end in /current, we are likely in provisioning
     # Deployment always uses /current
     {% set project_dir = app_root if app_root.endswith('/current') else app_root ~ '/current' %}

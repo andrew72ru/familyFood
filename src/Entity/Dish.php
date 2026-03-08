@@ -8,6 +8,7 @@ use App\Repository\DishRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,12 +16,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection(
     order: ['name' => 'ASC'],
     normalizationContext: ['groups' => ['dish:read']],
+    mercure: true,
     parameters: [
         'search[:property]' => new API\QueryParameter(filter: new Filter\PartialSearchFilter(), properties: ['name']),
         'tags' => new API\QueryParameter(filter: new Filter\IriFilter(), property: 'tags'),
     ],
 )]
-#[API\Get(normalizationContext: ['groups' => ['dish:read']]), API\Post, API\Patch(denormalizationContext: ['groups' => ['dish:write']]), API\Delete]
+#[API\Get(normalizationContext: ['groups' => ['dish:read']], mercure: true)]
+#[API\Patch(denormalizationContext: ['groups' => ['dish:write']], mercure: true)]
+#[API\Post]
+#[API\Delete]
 class Dish
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
@@ -37,10 +42,12 @@ class Dish
     private string | null $description = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Gedmo\Timestampable(on: 'create')]
     #[Groups(['dish:read'])]
     private \DateTimeImmutable | null $createdAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Gedmo\Timestampable(on: 'update')]
     #[Groups(['dish:read'])]
     private \DateTimeImmutable | null $updatedAt = null;
 

@@ -31,6 +31,7 @@ final readonly class GetRecipeMessageHandler
 
         if ($recipeText !== '') {
             $dish->getRecipe()->setText($recipeText);
+            $dish->setUpdatedAt(new \DateTimeImmutable());
             $this->entityManager->flush();
         }
     }
