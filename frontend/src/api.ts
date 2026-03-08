@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const BASE_URL = process.env.REACT_APP_API_URL || '';
 
 export class ApiError extends Error {
   constructor(
@@ -13,6 +13,14 @@ export class ApiError extends Error {
 }
 
 export const fetchApi = async (path: string, options: RequestInit & { preload?: string } = {}): Promise<any> => {
+  const { data } = await fetchWithResponse(path, options);
+  return data;
+};
+
+export const fetchWithResponse = async (
+  path: string,
+  options: RequestInit & { preload?: string } = {},
+): Promise<{ data: any; response: Response }> => {
   const url = `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
 
   const headers = new Headers(options.headers || {});
@@ -36,7 +44,7 @@ export const fetchApi = async (path: string, options: RequestInit & { preload?: 
   const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
   if (response.status === 204) {
-    return null;
+    return { data: null, response };
   }
 
   if (response.status === 401 && path !== '/api/login_check') {
@@ -69,14 +77,14 @@ export const fetchApi = async (path: string, options: RequestInit & { preload?: 
                 document.cookie = `refresh_token=${refreshData.refresh_token}; Max-Age=${refreshData.refresh_token_expiration}; path=/; SameSite=Strict; Secure`;
               }
               // Retry the original request
-              return fetchApi(path, options);
+              return fetchWithResponse(path, options);
             }
           } else if (refreshResponse.status === 403) {
             // If we receive a 403 when trying to refresh, redirect to login
             localStorage.removeItem('jwt_token');
             document.cookie = 'refresh_token=; Max-Age=0; path=/;';
             window.location.href = '/login';
-            return;
+            return { data: null, response: refreshResponse };
           }
         } catch (e) {
           console.error('Failed to refresh token', e);
@@ -87,7 +95,7 @@ export const fetchApi = async (path: string, options: RequestInit & { preload?: 
     localStorage.removeItem('jwt_token');
     document.cookie = 'refresh_token=; Max-Age=0; path=/;';
     window.location.href = '/login';
-    return;
+    return { data: null, response };
   }
 
   const text = await response.text();
@@ -99,5 +107,5 @@ export const fetchApi = async (path: string, options: RequestInit & { preload?: 
     throw new ApiError(message, response.status, response.statusText, errorData);
   }
 
-  return data;
+  return { data, response };
 };

@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
     ],
 )]
-#[API\Get, API\Post, API\Patch, API\Delete]
+#[API\Get(mercure: true), API\Post, API\Patch(mercure: true), API\Delete]
 class Ingredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

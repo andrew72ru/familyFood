@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     normalizationContext: ['groups' => ['ingredient:read']],
     mercure: true
 )]
-#[API\Get(mercure: true), API\Post, API\Patch(mercure: true), API\GetCollection(mercure: true)]
+#[API\Get(mercure: true, normalizationContext: ['groups' => ['ingredient:read']]), API\Post(mercure: true, normalizationContext: ['groups' => ['ingredient:read']]), API\Patch(mercure: true), API\GetCollection(mercure: true), API\Delete(mercure: true)]
 class DishIngredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
@@ -29,6 +29,7 @@ class DishIngredient
 
     #[ORM\ManyToOne(inversedBy: 'dishIngredients')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['ingredient:read'])]
     private Dish | null $dish = null;
 
     #[ORM\ManyToOne]

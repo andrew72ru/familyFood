@@ -7,7 +7,7 @@ use App\Repository\RecipeCommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation\Timestampable;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: RecipeCommentRepository::class)]
 #[ApiResource(
@@ -20,11 +20,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
             ],
             order: ['createdAt' => 'desc'],
             normalizationContext: ['groups' => ['recipe_comment:read']],
+            mercure: true,
         ),
         new Get(),
         new Post(),
         new Patch(),
-    ]
+    ],
+    mercure: true,
 )]
 class RecipeComment
 {

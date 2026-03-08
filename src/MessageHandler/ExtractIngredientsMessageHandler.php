@@ -62,6 +62,7 @@ final readonly class ExtractIngredientsMessageHandler
                 $this->entityManager->persist($dishIngredient);
                 $dish->addDishIngredient($dishIngredient);
                 $dish->setUpdatedAt(new \DateTimeImmutable());
+                $this->entityManager->persist($dish);
             }
         }
 

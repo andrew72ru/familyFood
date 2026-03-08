@@ -132,7 +132,7 @@ const rnd = (min: number, max: number): Number => {
 };
 
 function App() {
-  const backgroundUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/images/background-${rnd(1, 3)}.jpg`;
+  const backgroundUrl = `${process.env.REACT_APP_API_URL || ''}/images/background-${rnd(1, 3)}.jpg`;
 
   React.useEffect(() => {
     document.body.style.backgroundImage = `url(${backgroundUrl})`;
