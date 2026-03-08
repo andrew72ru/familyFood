@@ -52,7 +52,7 @@ class ExtractIngredientsTest extends KernelTestCase
 
         $requestOptions = $mockResponse->getRequestOptions();
         $body = \json_decode($requestOptions['body'], true);
-        $this->assertEquals('Test recipe text', $body['prompt']['variables']['dish']);
+        $this->assertEquals('Test recipe text', $body['prompt']['variables']['text']);
     }
 
     #[DataProvider('provideInvalidJsonResponse')]

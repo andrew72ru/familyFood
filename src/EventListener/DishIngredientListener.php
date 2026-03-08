@@ -57,6 +57,7 @@ final class DishIngredientListener
         $this->isFlushing = true;
         try {
             $dish->setUpdatedAt(new \DateTimeImmutable());
+            $em->persist($dish);
             $em->flush();
         } finally {
             $this->isFlushing = false;

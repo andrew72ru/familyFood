@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\{ApiResource, Get, GetCollection, Link, Patch, Post};
+use ApiPlatform\Metadata\{Get, GetCollection, Link, Patch, Post};
 use App\Repository\RecipeCommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

@@ -18,7 +18,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
     normalizationContext: ['groups' => ['ingredient:read']],
     mercure: true
 )]
-#[API\Get(mercure: true, normalizationContext: ['groups' => ['ingredient:read']]), API\Post(mercure: true, normalizationContext: ['groups' => ['ingredient:read']]), API\Patch(mercure: true), API\GetCollection(mercure: true), API\Delete(mercure: true)]
+#[API\Get(normalizationContext: ['groups' => ['ingredient:read']], mercure: true)]
+#[API\Post(normalizationContext: ['groups' => ['ingredient:read']], mercure: true)]
+#[API\Patch(mercure: true)]
+#[API\GetCollection(mercure: true)]
+#[API\Delete(mercure: true)]
 class DishIngredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

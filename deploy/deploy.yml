@@ -90,6 +90,7 @@
           MERCURE_PUBLISHER_JWT_KEY={{ mercure_publisher_jwt_key }}
           MERCURE_SUBSCRIBER_JWT_KEY={{ mercure_subscriber_jwt_key }}
           MERCURE_HUB_URL=https://{{ app_domain }}/.well-known/mercure
+          DEFAULT_URI=https://{{ app_domain }}
         dest: "{{ release_path }}/.env.local"
         owner: "{{ ansible_user }}"
         group: www-data
