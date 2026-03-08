@@ -2,13 +2,22 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata as API;
 use App\Repository\DishIngredientRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: DishIngredientRepository::class)]
-#[ApiResource]
+#[API\GetCollection(
+    uriTemplate: '/dishes/{id}/ingredients',
+    uriVariables: [
+        'id' => new API\Link(toProperty: 'dish', fromClass: Dish::class),
+    ],
+    order: ['ingredient.name' => 'asc'],
+    normalizationContext: ['groups' => ['ingredient:read']]
+)]
+#[API\Get, API\Post, API\Patch, API\GetCollection]
 class DishIngredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
@@ -23,9 +32,11 @@ class DishIngredient
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[Groups(['ingredient:read'])]
     private Ingredient | null $ingredient = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['ingredient:read'])]
     private string | null $comment = null;
 
     public function getId(): int | null

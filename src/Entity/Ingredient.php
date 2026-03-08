@@ -7,6 +7,7 @@ use ApiPlatform\Metadata as API;
 use App\Repository\IngredientRepository;
 use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: IngredientRepository::class)]
@@ -20,10 +21,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Ingredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    #[Groups(['ingredient:read'])]
     private int | null $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\NotBlank]
+    #[Groups(['ingredient:read'])]
     private string | null $name = null;
 
     /**
