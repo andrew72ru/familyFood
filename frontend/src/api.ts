@@ -1,4 +1,5 @@
 const BASE_URL = process.env.REACT_APP_API_URL || '';
+const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
 
 export class ApiError extends Error {
   constructor(
@@ -21,7 +22,13 @@ export const fetchWithResponse = async (
   path: string,
   options: RequestInit & { preload?: string } = {},
 ): Promise<{ data: any; response: Response }> => {
-  const url = `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+  let adjustedPath = path.startsWith('/') ? path : `/${path}`;
+
+  if (IS_PUBLIC_APP && adjustedPath.startsWith('/api/') && !adjustedPath.startsWith('/api/public/')) {
+    adjustedPath = adjustedPath.replace('/api/', '/api/public/');
+  }
+
+  const url = `${BASE_URL}${adjustedPath}`;
 
   const headers = new Headers(options.headers || {});
 
@@ -47,7 +54,7 @@ export const fetchWithResponse = async (
     return { data: null, response };
   }
 
-  if (response.status === 401 && path !== '/api/login_check') {
+  if (response.status === 401 && !IS_PUBLIC_APP && path !== '/api/login_check') {
     if (path !== '/api/refresh_token') {
       const getCookie = (name: string): string | null => {
         const value = `; ${document.cookie}`;

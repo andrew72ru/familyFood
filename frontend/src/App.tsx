@@ -12,6 +12,8 @@ import LoginForm from './components/LoginForm';
 import PullToRefresh from './components/PullToRefresh';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
+const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
+
 const TopNavigation = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
@@ -58,17 +60,23 @@ const TopNavigation = () => {
             <Nav.Link as={NavLink} to="/dishes">
               {t('navigation.dishes')}
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/ingredients">
-              {t('navigation.ingredients')}
-            </Nav.Link>
-            <Nav.Link as={NavLink} to="/tags">
-              {t('navigation.tags')}
-            </Nav.Link>
+            {!IS_PUBLIC_APP && (
+              <>
+                <Nav.Link as={NavLink} to="/ingredients">
+                  {t('navigation.ingredients')}
+                </Nav.Link>
+                <Nav.Link as={NavLink} to="/tags">
+                  {t('navigation.tags')}
+                </Nav.Link>
+              </>
+            )}
           </Nav>
           <Nav>
-            <Nav.Link as={NavLink} to="/dishes/new">
-              {t('navigation.add_new_dish')}
-            </Nav.Link>
+            {!IS_PUBLIC_APP && (
+              <Nav.Link as={NavLink} to="/dishes/new">
+                {t('navigation.add_new_dish')}
+              </Nav.Link>
+            )}
             <NavDropdown title={i18n.language.split('-')[0].toUpperCase()} id="language-dropdown" align="end">
               <NavDropdown.Item onClick={() => changeLanguage('en')}>{t('language.en')}</NavDropdown.Item>
               <NavDropdown.Item onClick={() => changeLanguage('ru')}>{t('language.ru')}</NavDropdown.Item>
@@ -109,15 +117,16 @@ const BottomNavigation = () => {
           <small>{t('common.app_name')}</small>
         </Navbar.Brand>
         <Nav className="ms-auto">
-          {isAuthenticated ? (
-            <Nav.Link as="button" className="btn btn-outline-secondary text-light opacity-75" onClick={handleLogout}>
-              {t('common.logout')}
-            </Nav.Link>
-          ) : (
-            <Nav.Link as={Link} to="/login">
-              {t('common.login')}
-            </Nav.Link>
-          )}
+          {!IS_PUBLIC_APP &&
+            (isAuthenticated ? (
+              <Nav.Link as="button" className="btn btn-outline-secondary text-light opacity-75" onClick={handleLogout}>
+                {t('common.logout')}
+              </Nav.Link>
+            ) : (
+              <Nav.Link as={Link} to="/login">
+                {t('common.login')}
+              </Nav.Link>
+            ))}
         </Nav>
       </Container>
     </Navbar>
@@ -156,12 +165,17 @@ function App() {
               <Routes>
                 <Route path="/" element={<DishList />} />
                 <Route path="/dishes" element={<DishList />} />
-                <Route path="/dishes/new" element={<DishCreate />} />
+                {!IS_PUBLIC_APP && <Route path="/dishes/new" element={<DishCreate />} />}
                 <Route path="/dishes/:id" element={<DishDetail />} />
-                <Route path="/ingredients" element={<IngredientManager />} />
-                <Route path="/tags" element={<TagManager />} />
-                <Route path="/admin/dishes" element={<AdminDishList />} />
-                <Route path="/login" element={<LoginForm />} />
+                {!IS_PUBLIC_APP && (
+                  <>
+                    <Route path="/ingredients" element={<IngredientManager />} />
+                    <Route path="/tags" element={<TagManager />} />
+                    <Route path="/admin/dishes" element={<AdminDishList />} />
+                    <Route path="/login" element={<LoginForm />} />
+                  </>
+                )}
+                {IS_PUBLIC_APP && <Route path="*" element={<DishList />} />}
               </Routes>
             </Container>
           </PullToRefresh>

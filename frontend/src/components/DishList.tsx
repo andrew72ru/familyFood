@@ -7,7 +7,10 @@ import Pagination from './Pagination';
 import ErrorDisplay from './ErrorDisplay';
 import { useTranslation } from 'react-i18next';
 
+const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
+
 const DishList: React.FC = () => {
+  console.log('Public app mode:', IS_PUBLIC_APP);
   const [searchParams, setSearchParams] = useSearchParams();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);

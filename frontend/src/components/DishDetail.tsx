@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
+const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
+
 const DishDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -188,51 +190,53 @@ const DishDetail: React.FC = () => {
             </Card.Body>
             <Card.Footer className="py-3">
               <div className="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center">
-                <Accordion className="w-100 me-md-4">
-                  <Accordion.Item eventKey="0">
-                    <Accordion.Header>{t('Actions')}</Accordion.Header>
-                    <Accordion.Body>
-                      <div className="d-grid gap-2 d-block">
-                        <Button
-                          variant="outline-primary"
-                          onClick={handleGetRecipe}
-                          disabled={isFetchingRecipe || (!!dish?.recipe?.text && dish.recipe.text.trim() !== '')}
-                        >
-                          {isFetchingRecipe ? (
-                            <>
-                              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                              {t('Requesting')}...
-                            </>
-                          ) : (
-                            t('Get a recipe')
-                          )}
-                        </Button>
-                        <Button
-                          variant="outline-primary"
-                          onClick={handleExtractIngredients}
-                          disabled={
-                            isExtractingIngredients || !dish?.recipe?.text?.trim() || dishIngredients.length > 0
-                          }
-                        >
-                          {isExtractingIngredients ? (
-                            <>
-                              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                              {t('Extracting')}...
-                            </>
-                          ) : (
-                            t('Extract ingredients')
-                          )}
-                        </Button>
-                        <Button variant="primary" onClick={() => setIsEditing(true)}>
-                          {t('Edit Dish')}
-                        </Button>
-                        <Button variant="danger" onClick={handleDelete}>
-                          {t('Delete Dish')}
-                        </Button>
-                      </div>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
+                {!IS_PUBLIC_APP && (
+                  <Accordion className="w-100 me-md-4">
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header>{t('Actions')}</Accordion.Header>
+                      <Accordion.Body>
+                        <div className="d-grid gap-2 d-block">
+                          <Button
+                            variant="outline-primary"
+                            onClick={handleGetRecipe}
+                            disabled={isFetchingRecipe || (!!dish?.recipe?.text && dish.recipe.text.trim() !== '')}
+                          >
+                            {isFetchingRecipe ? (
+                              <>
+                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                {t('Requesting')}...
+                              </>
+                            ) : (
+                              t('Get a recipe')
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline-primary"
+                            onClick={handleExtractIngredients}
+                            disabled={
+                              isExtractingIngredients || !dish?.recipe?.text?.trim() || dishIngredients.length > 0
+                            }
+                          >
+                            {isExtractingIngredients ? (
+                              <>
+                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                {t('Extracting')}...
+                              </>
+                            ) : (
+                              t('Extract ingredients')
+                            )}
+                          </Button>
+                          <Button variant="primary" onClick={() => setIsEditing(true)}>
+                            {t('Edit Dish')}
+                          </Button>
+                          <Button variant="danger" onClick={handleDelete}>
+                            {t('Delete Dish')}
+                          </Button>
+                        </div>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                )}
                 {dishIngredients.length > 0 && (
                   <div className="d-grid px-1 mt-3">
                     <Button

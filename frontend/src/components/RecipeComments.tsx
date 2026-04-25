@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { RecipeComment } from '../types/Dish';
 import { fetchApi } from '../api';
 
+const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
+
 interface RecipeCommentsProps {
   dishId: string;
   recipeComments: RecipeComment[];
@@ -145,18 +147,20 @@ const RecipeComments: React.FC<RecipeCommentsProps> = ({ dishId, recipeComments,
                           </div>
                         )}
                       </div>
-                      <div className="ms-2 d-flex gap-2">
-                        <Button variant="outline-primary" size="sm" onClick={() => handleEditClick(comment)}>
-                          <i className="bi bi-pencil"></i>
-                        </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => comment['@id'] && handleDeleteComment(comment['@id'])}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </Button>
-                      </div>
+                      {!IS_PUBLIC_APP && (
+                        <div className="ms-2 d-flex gap-2">
+                          <Button variant="outline-primary" size="sm" onClick={() => handleEditClick(comment)}>
+                            <i className="bi bi-pencil"></i>
+                          </Button>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => comment['@id'] && handleDeleteComment(comment['@id'])}
+                          >
+                            <i className="bi bi-trash"></i>
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </ListGroup.Item>
@@ -165,26 +169,27 @@ const RecipeComments: React.FC<RecipeCommentsProps> = ({ dishId, recipeComments,
           ) : (
             <p className="text-muted">{t('No comments yet')}</p>
           )}
-
-          <Form onSubmit={handleAddComment} className="mt-3">
-            <Form.Group className="mb-2">
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder={t('Add a comment')}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                required
-                style={{ overflowY: 'auto' }}
-                ref={commentRef}
-              />
-            </Form.Group>
-            <div className="d-flex justify-content-end">
-              <Button variant="primary" type="submit" size="sm" disabled={isSubmittingComment || !newComment.trim()}>
-                {isSubmittingComment ? t('Sending...') : t('Add Comment')}
-              </Button>
-            </div>
-          </Form>
+          {!IS_PUBLIC_APP && (
+            <Form onSubmit={handleAddComment} className="mt-3">
+              <Form.Group className="mb-2">
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder={t('Add a comment')}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  required
+                  style={{ overflowY: 'auto' }}
+                  ref={commentRef}
+                />
+              </Form.Group>
+              <div className="d-flex justify-content-end">
+                <Button variant="primary" type="submit" size="sm" disabled={isSubmittingComment || !newComment.trim()}>
+                  {isSubmittingComment ? t('Sending...') : t('Add Comment')}
+                </Button>
+              </div>
+            </Form>
+          )}
         </Accordion.Body>
       </Accordion.Item>
     </Accordion>
