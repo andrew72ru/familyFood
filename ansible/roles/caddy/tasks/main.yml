@@ -65,11 +65,27 @@
     append: yes
   notify: Restart Caddy
 
+- name: Create Caddy data directory
+  file:
+    path: /var/lib/caddy
+    state: directory
+    owner: caddy
+    group: caddy
+    mode: '0750'
+
 - name: Create Caddyfile
   template:
     src: Caddyfile.j2
     dest: /etc/caddy/Caddyfile
   notify: Reload Caddy
+
+- name: Copy logrotate configuration for Caddy logs
+  template:
+    src: logrotate.j2
+    dest: /etc/logrotate.d/caddy
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: Ensure Caddy is running
   service:
