@@ -23,6 +23,7 @@ This directory contains Ansible playbooks to configure a Ubuntu LTS server for t
     ssh_user: "ubuntu"
     server_ip: "0.0.0.0"
     app_domain: "example.com"
+    app_public_domain: "public.example.com"
     db_name: "family_food"
     db_user: "app_user"
     db_password: "YOUR_SECURE_PASSWORD"

@@ -78,7 +78,7 @@
           APP_SECRET={{ app_secret }}
           DATABASE_URL="postgresql://{{ db_user }}:{{ db_password }}@127.0.0.1:5432/{{ db_name }}?serverVersion={{ postgresql_version }}&charset=utf8"
           MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
-          CORS_ALLOW_ORIGIN='^https?://{{ app_domain | replace('.', '\.') }}(:[0-9]+)?$'
+          CORS_ALLOW_ORIGIN='^https?://({{ app_domain | replace('.', '\.') }}|{{ app_public_domain | replace('.', '\.') }})(:[0-9]+)?$'
           JWT_SECRET_KEY={{ jwt_private_key }}
           JWT_PUBLIC_KEY={{ jwt_public_key }}
           JWT_PASSPHRASE={{ jwt_passphrase }}
@@ -97,12 +97,25 @@
         mode: '0640'
       become: yes
 
-    - name: Create React .env.local for production
+    - name: Create React .env.local for Admin app
       ansible.builtin.copy:
         content: |
           REACT_APP_API_URL=https://{{ app_domain }}
           REACT_APP_MERCURE_HUB_URL=https://{{ app_domain }}/.well-known/mercure
-        dest: "{{ release_path }}/frontend/.env.local"
+          REACT_APP_IS_PUBLIC_APP=false
+        dest: "{{ release_path }}/frontend/.env.admin"
+        owner: "{{ ansible_user }}"
+        group: www-data
+        mode: '0644'
+      become: yes
+
+    - name: Create React .env.local for Public app
+      ansible.builtin.copy:
+        content: |
+          REACT_APP_API_URL=https://{{ app_domain }}
+          REACT_APP_MERCURE_HUB_URL=https://{{ app_domain }}/.well-known/mercure
+          REACT_APP_IS_PUBLIC_APP=true
+        dest: "{{ release_path }}/frontend/.env.public"
         owner: "{{ ansible_user }}"
         group: www-data
         mode: '0644'
@@ -166,8 +179,13 @@
       ansible.builtin.npm:
         path: "{{ release_path }}/frontend"
 
-    - name: Build frontend assets
-      ansible.builtin.shell: "npm run build"
+    - name: Build Admin frontend assets
+      ansible.builtin.shell: "cp .env.admin .env.local && npm run build && mv build build-admin"
+      args:
+        chdir: "{{ release_path }}/frontend"
+
+    - name: Build Public frontend assets
+      ansible.builtin.shell: "cp .env.public .env.local && npm run build && mv build build-public"
       args:
         chdir: "{{ release_path }}/frontend"
 

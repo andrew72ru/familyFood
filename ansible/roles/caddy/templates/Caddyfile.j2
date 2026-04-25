@@ -1,4 +1,4 @@
-{{ app_domain }} {
+{{ app_domain }}, {{ app_public_domain }} {
     # Vulcain module
     vulcain
 
@@ -36,12 +36,22 @@
     # Enable standard compression for performance
     encode zstd gzip
 
-    # Handle React frontend
-    handle {
-        root * {{ project_dir }}/frontend/build
+    # Handle React frontend (Admin app on main domain)
+    handle @admin {
+        root * {{ project_dir }}/frontend/build-admin
         try_files {path} /index.html
         file_server
     }
+
+    # Handle React frontend (Public app on public domain)
+    handle @public {
+        root * {{ project_dir }}/frontend/build-public
+        try_files {path} /index.html
+        file_server
+    }
+
+    @admin host {{ app_domain }}
+    @public host {{ app_public_domain }}
 
     log {
         output file /var/log/caddy/{{ app_name }}_access.log
