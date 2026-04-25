@@ -23,6 +23,19 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[API\Patch(mercure: true)]
 #[API\GetCollection(mercure: true)]
 #[API\Delete(mercure: true)]
+#[API\GetCollection(
+    uriTemplate: '/dishes/{id}/ingredients',
+    uriVariables: [
+        'id' => new API\Link(toProperty: 'dish', fromClass: Dish::class),
+    ],
+    routePrefix: '/public',
+    order: ['ingredient.name' => 'asc'],
+    normalizationContext: ['groups' => ['ingredient:read']],
+)]
+#[API\Get(
+    routePrefix: '/public',
+    normalizationContext: ['groups' => ['ingredient:read']]
+)]
 class DishIngredient
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

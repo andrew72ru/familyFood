@@ -17,6 +17,16 @@ use Symfony\Component\Validator\Constraints as Assert;
         'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
     ],
 )]
+#[API\GetCollection(
+    routePrefix: '/public',
+    paginationClientEnabled: true,
+    parameters: [
+        'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
+    ],
+)]
+#[API\Get(
+    routePrefix: '/public'
+)]
 #[API\Get(mercure: true), API\Post, API\Patch(mercure: true), API\Delete]
 class Ingredient
 {

@@ -26,6 +26,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\Patch(denormalizationContext: ['groups' => ['dish:write']], mercure: true)]
 #[API\Post]
 #[API\Delete]
+#[API\GetCollection(
+    routePrefix: '/public',
+    order: ['name' => 'ASC'],
+    normalizationContext: ['groups' => ['dish:read']],
+    parameters: [
+        'search[:property]' => new API\QueryParameter(filter: new Filter\PartialSearchFilter(), properties: ['name']),
+        'tags' => new API\QueryParameter(filter: new Filter\IriFilter(), property: 'tags'),
+    ],
+)]
+#[API\Get(
+    routePrefix: '/public',
+    normalizationContext: ['groups' => ['dish:read']],
+)]
 class Dish
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]

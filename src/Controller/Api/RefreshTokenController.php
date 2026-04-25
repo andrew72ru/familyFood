@@ -9,6 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * @psalm-suppress PropertyNotSetInConstructor
+ */
 final class RefreshTokenController extends AbstractController
 {
     public function __construct(
@@ -28,7 +31,7 @@ final class RefreshTokenController extends AbstractController
         $data = \json_decode($request->getContent(), true);
         $refreshTokenString = $data['refresh_token'] ?? $request->request->get('refresh_token');
 
-        if (!$refreshTokenString) {
+        if (!\is_string($refreshTokenString) || '' === $refreshTokenString) {
             return new JsonResponse(['message' => 'Refresh token not found in request'], Response::HTTP_FORBIDDEN);
         }
 
@@ -45,7 +48,8 @@ final class RefreshTokenController extends AbstractController
 
         // Generate a new access token
         $newToken = $this->jwtManager->create($user);
-        $expiration = $refreshToken->getExpiresAt()?->getTimestamp() - \time();
+        $expiresAt = $refreshToken->getExpiresAt();
+        $expiration = $expiresAt instanceof \DateTimeImmutable ? $expiresAt->getTimestamp() - \time() : 0;
 
         return new JsonResponse([
             'token' => $newToken,

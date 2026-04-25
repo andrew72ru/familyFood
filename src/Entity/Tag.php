@@ -20,6 +20,17 @@ use Symfony\Component\Validator\Constraints as Assert;
         'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
     ]
 )]
+#[API\Get(
+    routePrefix: '/public',
+    normalizationContext: ['groups' => ['dish:read']]
+)]
+#[API\GetCollection(
+    routePrefix: '/public',
+    normalizationContext: ['groups' => ['dish:read']],
+    parameters: [
+        'search[:property]' => new API\QueryParameter(filter: new PartialSearchFilter(), properties: ['name']),
+    ],
+)]
 #[UniqueEntity('name')]
 class Tag
 {

@@ -36,6 +36,19 @@ use Symfony\Component\Serializer\Attribute\Groups;
     normalizationContext: ['groups' => ['recipe_comment:read']],
     mercure: true
 )]
+#[GetCollection(
+    uriTemplate: '/dishes/{id}/recipe_comments',
+    uriVariables: [
+        'id' => new Link(toProperty: 'dish', fromClass: Dish::class),
+    ],
+    routePrefix: '/public',
+    order: ['createdAt' => 'desc'],
+    normalizationContext: ['groups' => ['recipe_comment:read']],
+)]
+#[Get(
+    routePrefix: '/public',
+    normalizationContext: ['groups' => ['recipe_comment:read']]
+)]
 class RecipeComment
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
