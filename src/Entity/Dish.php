@@ -16,6 +16,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[API\GetCollection(
     order: ['name' => 'ASC'],
     normalizationContext: ['groups' => ['dish:read']],
+    paginationItemsPerPage: 100,
+    paginationClientItemsPerPage: true,
     mercure: true,
     parameters: [
         'search[:property]' => new API\QueryParameter(filter: new Filter\PartialSearchFilter(), properties: ['name']),
@@ -30,6 +32,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     routePrefix: '/public',
     order: ['name' => 'ASC'],
     normalizationContext: ['groups' => ['dish:read']],
+    paginationItemsPerPage: 100,
+    paginationClientItemsPerPage: true,
     parameters: [
         'search[:property]' => new API\QueryParameter(filter: new Filter\PartialSearchFilter(), properties: ['name']),
         'tags' => new API\QueryParameter(filter: new Filter\IriFilter(), property: 'tags'),

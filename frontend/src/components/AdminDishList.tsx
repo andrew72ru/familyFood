@@ -11,12 +11,12 @@ const AdminDishList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 30;
+  const itemsPerPage = 100;
 
   const fetchDishes = React.useCallback(async () => {
     try {
       setLoading(true);
-      const data = await fetchApi(`/api/dishes?page=${page}`);
+      const data = await fetchApi(`/api/dishes?page=${page}&itemsPerPage=${itemsPerPage}`);
       const fetchedDishes = data['hydra:member'] || data['member'] || [];
       setDishes(fetchedDishes);
       setTotalItems(data['hydra:totalItems'] || data['totalItems'] || 0);

@@ -8,6 +8,13 @@ import ErrorDisplay from './ErrorDisplay';
 import { useTranslation } from 'react-i18next';
 
 const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
+const DEFAULT_ITEMS_PER_PAGE = 100;
+
+const parseItemsPerPage = (value: string | null): number => {
+  const parsedValue = Number(value);
+
+  return Number.isInteger(parsedValue) && parsedValue > 0 ? parsedValue : DEFAULT_ITEMS_PER_PAGE;
+};
 
 const DishList: React.FC = () => {
   console.log('Public app mode:', IS_PUBLIC_APP);
@@ -19,6 +26,7 @@ const DishList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const searchTerm = searchParams.get('search') || '';
+  const itemsPerPage = parseItemsPerPage(searchParams.get('itemsPerPage'));
   const selectedTags = React.useMemo(() => searchParams.getAll('tags[]'), [searchParams]);
   const [searchInput, setSearchInput] = useState(searchTerm);
   const [isTagsOpen, setIsTagsOpen] = useState(false);
@@ -36,16 +44,20 @@ const DishList: React.FC = () => {
   const fetchDishes = React.useCallback(async () => {
     try {
       setLoading(true);
-      let url = `/api/dishes?page=${page}`;
+      const params = new URLSearchParams({
+        page: String(page),
+        itemsPerPage: String(itemsPerPage),
+      });
+
       if (searchTerm) {
-        url += `&search[name]=${encodeURIComponent(searchTerm)}`;
+        params.set('search[name]', searchTerm);
       }
       if (selectedTags.length > 0) {
         selectedTags.forEach((tagIri) => {
-          url += `&tags[]=${encodeURIComponent(tagIri)}`;
+          params.append('tags[]', tagIri);
         });
       }
-      const data = await fetchApi(url, {
+      const data = await fetchApi(`/api/dishes?${params}`, {
         preload: '/api/dish_ingredients/*',
       });
       const fetchedDishes = data['hydra:member'] || data['member'] || [];
@@ -56,7 +68,7 @@ const DishList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, searchTerm, selectedTags]);
+  }, [itemsPerPage, page, searchTerm, selectedTags]);
 
   useEffect(() => {
     fetchAvailableTags();
@@ -74,6 +86,7 @@ const DishList: React.FC = () => {
     e.preventDefault();
     const nextParams = new URLSearchParams();
     if (searchInput) nextParams.set('search', searchInput);
+    if (itemsPerPage !== DEFAULT_ITEMS_PER_PAGE) nextParams.set('itemsPerPage', String(itemsPerPage));
     selectedTags.forEach((tag) => nextParams.append('tags[]', tag));
 
     setSearchParams(nextParams);
@@ -216,7 +229,7 @@ const DishList: React.FC = () => {
         </Row>
       )}
 
-      <Pagination currentPage={page} totalItems={totalItems} itemsPerPage={30} onPageChange={setPage} />
+      <Pagination currentPage={page} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={setPage} />
     </div>
   );
 };
