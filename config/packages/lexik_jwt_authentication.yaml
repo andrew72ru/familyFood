@@ -21,13 +21,6 @@ lexik_jwt_authentication:
             secure: true
             httpOnly: true
             samesite: lax
-        refresh_token:
-            lifetime: 2592000
-            path: /
-            domain: null
-            secure: true
-            httpOnly: true
-            samesite: lax
 
 when@dev:
     lexik_jwt_authentication:

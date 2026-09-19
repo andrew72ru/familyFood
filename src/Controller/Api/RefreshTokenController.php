@@ -47,8 +47,11 @@ final class RefreshTokenController extends AbstractController
 
         $newToken = $this->jwtManager->create($user);
 
-        return new JsonResponse([
+        $response = new JsonResponse([
             'token' => $newToken,
         ]);
+        $this->refreshTokenSessionManager->addAccessTokenCookie($response, $newToken);
+
+        return $response;
     }
 }

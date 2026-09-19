@@ -14,6 +14,10 @@ final class RefreshTokenSessionManager
 
     private const string COOKIE_PATH = '/api';
 
+    // Mirrors config/packages/lexik_jwt_authentication.yaml `set_cookies.BEARER`.
+    private const string ACCESS_TOKEN_COOKIE_NAME = 'BEARER';
+    private const int ACCESS_TOKEN_COOKIE_LIFETIME = 3600;
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly RefreshTokenRepository $refreshTokenRepository,
@@ -97,6 +101,41 @@ final class RefreshTokenSessionManager
             Cookie::SAMESITE_STRICT,
         );
         $this->clearLegacyCookie($response);
+    }
+
+    /**
+     * Lexik's JWT cookie authenticates browser-initiated requests we can't attach
+     * an Authorization header to (Vulcain preload sub-requests). Keep it in sync
+     * with the in-memory access token whenever we hand out a fresh one.
+     */
+    public function addAccessTokenCookie(Response $response, string $jwt): void
+    {
+        $response->headers->setCookie(
+            Cookie::create(self::ACCESS_TOKEN_COOKIE_NAME)
+                ->withValue($jwt)
+                ->withExpires((new \DateTimeImmutable())->modify(\sprintf('+%d seconds', self::ACCESS_TOKEN_COOKIE_LIFETIME)))
+                ->withPath('/')
+                ->withSecure(true)
+                ->withHttpOnly(true)
+                ->withSameSite(Cookie::SAMESITE_LAX)
+        );
+    }
+
+    /**
+     * Clears every cookie that can authenticate a request on its own, so logout
+     * actually ends the session instead of leaving a still-valid BEARER cookie behind.
+     */
+    public function clearAllAuthCookies(Response $response): void
+    {
+        $this->clearCookie($response);
+        $response->headers->clearCookie(
+            self::ACCESS_TOKEN_COOKIE_NAME,
+            '/',
+            null,
+            true,
+            true,
+            Cookie::SAMESITE_LAX,
+        );
     }
 
     private function generateToken(): string

@@ -23,7 +23,7 @@ final class LogoutController
         }
 
         $response = new JsonResponse(null, Response::HTTP_NO_CONTENT);
-        $this->refreshTokenSessionManager->clearCookie($response);
+        $this->refreshTokenSessionManager->clearAllAuthCookies($response);
 
         return $response;
     }
