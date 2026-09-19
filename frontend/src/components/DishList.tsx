@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card, Spinner, Alert, Row, Col, Form, InputGroup, Badge, Collapse } from 'react-bootstrap';
 import { Dish, Tag } from '../types/Dish';
 import { fetchApi } from '../api';
@@ -18,6 +18,7 @@ const parseItemsPerPage = (value: string | null): number => {
 
 const DishList: React.FC = () => {
   console.log('Public app mode:', IS_PUBLIC_APP);
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -30,6 +31,7 @@ const DishList: React.FC = () => {
   const selectedTags = React.useMemo(() => searchParams.getAll('tags[]'), [searchParams]);
   const [searchInput, setSearchInput] = useState(searchTerm);
   const [isTagsOpen, setIsTagsOpen] = useState(false);
+  const [isChoosingRandomDish, setIsChoosingRandomDish] = useState(false);
   const { t } = useTranslation();
 
   const fetchAvailableTags = async () => {
@@ -118,6 +120,40 @@ const DishList: React.FC = () => {
     setPage(1);
   };
 
+  const handleRandomDish = async () => {
+    if (loading || isChoosingRandomDish || totalItems === 0) return;
+
+    try {
+      setIsChoosingRandomDish(true);
+      const randomPage = Math.floor(Math.random() * totalItems) + 1;
+      const params = new URLSearchParams({
+        page: String(randomPage),
+        itemsPerPage: '1',
+      });
+
+      if (searchTerm) {
+        params.set('search[name]', searchTerm);
+      }
+      selectedTags.forEach((tagIri) => {
+        params.append('tags[]', tagIri);
+      });
+
+      const data = await fetchApi(`/api/dishes?${params}`);
+      const [dish] = data['hydra:member'] || data['member'] || [];
+      const dishId = dish?.id || dish?.['@id']?.split('/').pop();
+
+      if (dishId) {
+        navigate(`/dishes/${dishId}`);
+      } else {
+        await fetchDishes();
+      }
+    } catch (err: any) {
+      setError(err);
+    } finally {
+      setIsChoosingRandomDish(false);
+    }
+  };
+
   if (loading && dishes.length === 0) {
     return (
       <div className="text-center mt-5">
@@ -152,6 +188,17 @@ const DishList: React.FC = () => {
             </Button>
             <Button variant="secondary" type="button" onClick={handleReset}>
               {t('Reset')}
+            </Button>
+            <Button
+              variant="primary"
+              type="button"
+              onClick={handleRandomDish}
+              disabled={loading || isChoosingRandomDish || totalItems === 0}
+            >
+              {isChoosingRandomDish && (
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+              )}
+              {isChoosingRandomDish ? t('Choosing random dish') : t('Random dish')}
             </Button>
             <Button
               variant="secondary"
