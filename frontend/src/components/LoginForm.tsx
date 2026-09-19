@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchApi } from '../api';
+import { getSafeReturnPath } from '../authRedirect';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +13,7 @@ const LoginForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +32,7 @@ const LoginForm: React.FC = () => {
 
       if (response && response.token && response.refresh_token) {
         login(response.token, response.refresh_token, response.refresh_token_expiration);
-        navigate('/');
+        navigate(getSafeReturnPath(searchParams.get('next')), { replace: true });
       } else {
         setError(t('login.failed'));
       }

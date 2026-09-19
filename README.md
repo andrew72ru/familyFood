@@ -101,7 +101,7 @@ Alternatively, use a local PHP server or Docker-based setup.
 cd frontend
 npm start
 ```
-The frontend will be available at `http://localhost:3000`.
+The frontend will be available at `https://localhost`.
 
 ### Database & Tools
 - **API Documentation**: Access the API Platform UI at `http://localhost:8000/api` (depending on your local server configuration).

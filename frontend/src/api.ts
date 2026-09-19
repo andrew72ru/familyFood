@@ -1,3 +1,5 @@
+import { redirectToLogin } from './authRedirect';
+
 const BASE_URL = process.env.REACT_APP_API_URL || '';
 const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
 
@@ -90,7 +92,7 @@ export const fetchWithResponse = async (
             // If we receive a 403 when trying to refresh, redirect to login
             localStorage.removeItem('jwt_token');
             document.cookie = 'refresh_token=; Max-Age=0; path=/;';
-            window.location.href = '/login';
+            redirectToLogin();
             return { data: null, response: refreshResponse };
           }
         } catch (e) {
@@ -101,7 +103,7 @@ export const fetchWithResponse = async (
 
     localStorage.removeItem('jwt_token');
     document.cookie = 'refresh_token=; Max-Age=0; path=/;';
-    window.location.href = '/login';
+    redirectToLogin();
     return { data: null, response };
   }
 
