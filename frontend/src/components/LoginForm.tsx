@@ -30,8 +30,8 @@ const LoginForm: React.FC = () => {
         },
       });
 
-      if (response && response.token && response.refresh_token) {
-        login(response.token, response.refresh_token, response.refresh_token_expiration);
+      if (response && response.token) {
+        login(response.token);
         navigate(getSafeReturnPath(searchParams.get('next')), { replace: true });
       } else {
         setError(t('login.failed'));

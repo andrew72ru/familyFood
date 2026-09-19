@@ -2,20 +2,16 @@
 
 namespace App\EventSubscriber;
 
-use App\Entity\{RefreshToken, User};
-use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
+use App\Service\RefreshTokenSessionManager;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\AuthenticationSuccessEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Events;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class AuthenticationSuccessSubscriber implements EventSubscriberInterface
 {
-    private const int REFRESH_TOKEN_EXPIRATION = 31536000; // 1 year in seconds
-
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly JWTTokenManagerInterface $jwtManager,
+        private readonly RefreshTokenSessionManager $refreshTokenSessionManager,
     ) {
     }
 
@@ -35,40 +31,7 @@ final class AuthenticationSuccessSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Generate a long-lived JWT for refresh token
-        // Lexik JWT manager by default uses the configured TTL.
-        // We might want to use a different payload or TTL.
-        // For simplicity and matching the request, we use a similar JWT but with longer life.
-
-        $payload = [
-            'exp' => \time() + self::REFRESH_TOKEN_EXPIRATION,
-            'email' => $user->getEmail(),
-            'refresh' => true,
-        ];
-
-        $refreshTokenString = $this->jwtManager->createFromPayload($user, $payload);
-
-        // Store in DB
-        $refreshToken = $this->entityManager->getRepository(RefreshToken::class)->findOneBy(['user' => $user]);
-
-        if (!$refreshToken instanceof RefreshToken) {
-            $refreshToken = new RefreshToken();
-            $refreshToken->setUser($user);
-            $this->entityManager->persist($refreshToken);
-        }
-
-        $refreshToken->setToken($refreshTokenString);
-        $refreshToken->setExpiresAt((new \DateTimeImmutable())->modify(\sprintf('+%d seconds', self::REFRESH_TOKEN_EXPIRATION)));
-
-        $this->entityManager->flush();
-
-        // Add to response data
-        $data = $event->getData();
-        if (!isset($data['token'])) {
-            $data['token'] = $this->jwtManager->create($user);
-        }
-        $data['refresh_token'] = $refreshTokenString;
-        $data['refresh_token_expiration'] = self::REFRESH_TOKEN_EXPIRATION;
-        $event->setData($data);
+        $session = $this->refreshTokenSessionManager->create($user);
+        $this->refreshTokenSessionManager->addCookie($event->getResponse(), $session['token'], $session['expiresAt']);
     }
 }

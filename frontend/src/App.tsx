@@ -90,12 +90,12 @@ const TopNavigation = () => {
 
 const BottomNavigation = () => {
   const { t } = useTranslation();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, isInitialized, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -118,6 +118,7 @@ const BottomNavigation = () => {
         </Navbar.Brand>
         <Nav className="ms-auto">
           {!IS_PUBLIC_APP &&
+            isInitialized &&
             (isAuthenticated ? (
               <Nav.Link as="button" className="btn btn-outline-secondary text-light opacity-75" onClick={handleLogout}>
                 {t('common.logout')}

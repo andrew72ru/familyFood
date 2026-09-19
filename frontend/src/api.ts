@@ -2,6 +2,71 @@ import { redirectToLogin } from './authRedirect';
 
 const BASE_URL = process.env.REACT_APP_API_URL || '';
 const IS_PUBLIC_APP = process.env.REACT_APP_IS_PUBLIC_APP === 'true';
+let accessToken: string | null = null;
+let refreshPromise: Promise<string | null> | null = null;
+
+export const setAccessToken = (token: string | null): void => {
+  accessToken = token;
+};
+
+const requestAccessToken = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/refresh_token`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      setAccessToken(null);
+      return null;
+    }
+
+    const data: unknown = await response.json();
+    if (
+      typeof data !== 'object' ||
+      data === null ||
+      !('token' in data) ||
+      typeof data.token !== 'string' ||
+      data.token === ''
+    ) {
+      setAccessToken(null);
+      return null;
+    }
+
+    setAccessToken(data.token);
+    return data.token;
+  } catch {
+    setAccessToken(null);
+    return null;
+  }
+};
+
+export const refreshAccessToken = (): Promise<string | null> => {
+  if (!refreshPromise) {
+    refreshPromise = requestAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+
+  return refreshPromise;
+};
+
+export const logoutSession = async (): Promise<void> => {
+  try {
+    await fetch(`${BASE_URL}/api/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+  } finally {
+    setAccessToken(null);
+  }
+};
 
 export class ApiError extends Error {
   constructor(
@@ -23,6 +88,7 @@ export const fetchApi = async (path: string, options: RequestInit & { preload?: 
 export const fetchWithResponse = async (
   path: string,
   options: RequestInit & { preload?: string } = {},
+  allowRefresh = true,
 ): Promise<{ data: any; response: Response }> => {
   let adjustedPath = path.startsWith('/') ? path : `/${path}`;
 
@@ -34,9 +100,8 @@ export const fetchWithResponse = async (
 
   const headers = new Headers(options.headers || {});
 
-  const token = localStorage.getItem('jwt_token');
-  if (token && !headers.has('Authorization')) {
-    headers.set('Authorization', `Bearer ${token}`);
+  if (accessToken && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${accessToken}`);
   }
 
   if (options.preload) {
@@ -57,52 +122,11 @@ export const fetchWithResponse = async (
   }
 
   if (response.status === 401 && !IS_PUBLIC_APP && path !== '/api/login_check') {
-    if (path !== '/api/refresh_token') {
-      const getCookie = (name: string): string | null => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-        return null;
-      };
-
-      const refreshToken = getCookie('refresh_token');
-      if (refreshToken) {
-        try {
-          const refreshResponse = await fetch(`${BASE_URL}/api/refresh_token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/ld+json',
-            },
-            body: JSON.stringify({ refresh_token: refreshToken }),
-            credentials: 'include',
-          });
-
-          if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            if (refreshData.token) {
-              localStorage.setItem('jwt_token', refreshData.token);
-              if (refreshData.refresh_token && refreshData.refresh_token_expiration) {
-                document.cookie = `refresh_token=${refreshData.refresh_token}; Max-Age=${refreshData.refresh_token_expiration}; path=/; SameSite=Strict; Secure`;
-              }
-              // Retry the original request
-              return fetchWithResponse(path, options);
-            }
-          } else if (refreshResponse.status === 403) {
-            // If we receive a 403 when trying to refresh, redirect to login
-            localStorage.removeItem('jwt_token');
-            document.cookie = 'refresh_token=; Max-Age=0; path=/;';
-            redirectToLogin();
-            return { data: null, response: refreshResponse };
-          }
-        } catch (e) {
-          console.error('Failed to refresh token', e);
-        }
-      }
+    if (allowRefresh && (await refreshAccessToken())) {
+      return fetchWithResponse(path, options, false);
     }
 
-    localStorage.removeItem('jwt_token');
-    document.cookie = 'refresh_token=; Max-Age=0; path=/;';
+    setAccessToken(null);
     redirectToLogin();
     return { data: null, response };
   }

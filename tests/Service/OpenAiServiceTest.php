@@ -78,7 +78,10 @@ class OpenAiServiceTest extends KernelTestCase
         $this->assertEquals('https://api.openai.com/v1/responses', $mockResponse->getRequestUrl());
 
         $requestOptions = $mockResponse->getRequestOptions();
-        $this->assertStringContainsString('Bearer test_api_key', $requestOptions['headers'][0]);
+        $this->assertNotEmpty(\array_filter(
+            $requestOptions['headers'],
+            static fn (string $header): bool => \str_contains($header, 'Bearer test_api_key')
+        ));
 
         $body = \json_decode($requestOptions['body'], true);
         $this->assertEquals('gpt-4.1-mini', $body['model']);
