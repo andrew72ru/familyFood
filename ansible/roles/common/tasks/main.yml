@@ -1,3 +1,4 @@
+---
 - name: Update apt cache
   apt:
     update_cache: yes
@@ -15,7 +16,7 @@
       - logrotate
     state: present
 
-- name: Setup firewall (UFW)
+- name: Setup firewall (UFW) rules
   ufw:
     rule: allow
     port: "{{ item }}"
@@ -23,6 +24,11 @@
     - "22"
     - "80"
     - "443"
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+    policy: deny
 
 - name: Check swap status
   ansible.builtin.command: swapon --show

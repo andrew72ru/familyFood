@@ -1,6 +1,6 @@
 # Ansible Playbooks for FamilyFood
 
-This directory contains Ansible playbooks to configure a Ubuntu LTS server for the FamilyFood application (Symfony 7.4 + React + PostgreSQL 16).
+This directory contains Ansible playbooks to configure a Ubuntu LTS server for the FamilyFood application (Symfony 7.4 + React + PostgreSQL 17).
 
 ## Structure
 
@@ -51,8 +51,8 @@ ansible-playbook playbook.yml --tags "messenger-setup"
 
 ## Technologies Configured
 
-- **PHP 8.3** (with FPM, CLI, and essential extensions)
-- **PostgreSQL 16** (official repository)
+- **PHP 8.4** (with FPM, CLI, and essential extensions)
+- **PostgreSQL 17** (official repository)
 - **Caddy** (with automatic SSL via Let's Encrypt and PHP-FPM support)
 - **Node.js 20.x** (for frontend builds)
 - **Composer** (latest version)

@@ -1,48 +1,87 @@
+---
 - name: Install dependencies for repository management
   apt:
     name:
       - gnupg
       - ca-certificates
       - curl
-      - golang-go
+      - tar
+      - gcc
     state: present
 
+# Remove system Go if present — we need a newer version
+- name: Remove system golang-go package
+  apt:
+    name: golang-go
+    state: absent
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'noble'
+
+- name: Install Go from local archive
+  unarchive:
+    src: "{{ playbook_dir }}/go1.24.13.linux-amd64.tar.gz"
+    dest: /usr/local
+    creates: /usr/local/go/bin/go
+
+- name: Ensure Go is on PATH
+  copy:
+    content: 'export PATH=$PATH:/usr/local/go/bin'
+    dest: /etc/profile.d/go.sh
+    mode: '0644'
+
+# Caddy setup for Ubuntu 24.04 LTS (noble) — Cloudsmith setup script
+- name: Run Caddy Cloudsmith setup script
+  shell: |
+    set -o pipefail
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/setup.deb.sh' | bash -
+  args:
+    executable: /bin/bash
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'noble'
+
+# Legacy manual repo setup for older Ubuntu versions
 - name: Create keyrings directory
   file:
     path: /usr/share/keyrings
     state: directory
     mode: '0755'
+  when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'noble')
 
 - name: Download Caddy GPG key
   shell: "curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg"
   args:
     creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'noble')
 
 - name: Add or remove Caddy repository
   apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/debian any-branch main"
     state: "{{ 'absent' if ansible_distribution_release == 'plucky' else 'present' }}"
     filename: caddy-stable
+  when: not (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'noble')
 
 - name: Install Caddy
   apt:
     name: caddy
     state: present
-    update_cache: "{{ 'yes' if ansible_distribution_release == 'plucky' else 'no' }}"
+    update_cache: yes
 
 - name: Install xcaddy
-  shell: "go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest"
+  shell: |
+    export PATH=$PATH:/usr/local/go/bin
+    go install github.com/caddyserver/xcaddy/cmd/xcaddy@v0.4.5
   args:
     creates: /root/go/bin/xcaddy
   environment:
     GOPATH: /root/go
 
 - name: Build Caddy with Vulcain and Mercure modules
-  shell: "/root/go/bin/xcaddy build --with github.com/dunglas/vulcain/caddy --with github.com/dunglas/mercure/caddy"
+  shell: |
+    export PATH=$PATH:/usr/local/go/bin
+    /root/go/bin/xcaddy build v2.11.4       --with github.com/dunglas/vulcain/caddy@v1.4.3       --with github.com/dunglas/mercure/caddy@v1.0.0
   args:
     chdir: /tmp
   environment:
     GOPATH: /root/go
+    XCADDY_GO_BUILD_FLAGS: "-ldflags '-w -s' -trimpath -tags=deprecated_topic,deprecated_claim"
 
 - name: Stop Caddy service to swap binary
   service:
