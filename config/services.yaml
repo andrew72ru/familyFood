@@ -9,7 +9,7 @@
 parameters:
     router.request_context.scheme: 'https'
     router.request_context.host: 'localhost'
-    router.request_context.base_url: ''
+#    router.request_context.base_url: '' # The framework.router.default_uri (in the config/packages/routing.yaml) breaks it
     router.request_context.http_port: 80
     router.request_context.https_port: 443
     asset.request_context.secure: true
