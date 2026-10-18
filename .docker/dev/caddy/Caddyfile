@@ -7,10 +7,16 @@ https://localhost:443 {
 	# Mercure hub
 	handle /.well-known/mercure* {
 		mercure {
-			publisher_jwt {$MERCURE_PUBLISHER_JWT_KEY}
-			subscriber_jwt {$MERCURE_SUBSCRIBER_JWT_KEY}
 			anonymous
-			ui
+			debugger
+			issuer https://localhost {
+				publisher {
+					jwt {$MERCURE_JWT_SECRET}
+				}
+				subscriber {
+					jwt {$MERCURE_JWT_SECRET}
+				}
+			}
 		}
 	}
 

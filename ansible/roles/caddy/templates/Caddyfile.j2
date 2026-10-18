@@ -8,10 +8,15 @@
             transport bolt {
                 path /var/lib/caddy/mercure.db
             }
-            publisher_jwt {{ mercure_publisher_jwt_key }}
-            subscriber_jwt {{ mercure_subscriber_jwt_key }}
-            protocol_version_compatibility 8
             anonymous
+            issuer https://{{ app_domain }} {
+                publisher {
+                    jwt {{ mercure_jwt_secret }}
+                }
+                subscriber {
+                    jwt {{ mercure_jwt_secret }}
+                }
+            }
         }
     }
 

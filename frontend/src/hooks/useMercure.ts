@@ -20,7 +20,7 @@ export const useMercure = (topics: string | string[], onUpdate: (data: any) => v
     const topicsArray = Array.isArray(topics) ? topics : [topics];
 
     topicsArray.forEach((topic) => {
-      url.searchParams.append('topic', topic);
+      url.searchParams.append('match', topic);
     });
 
     if (IS_DEV) {

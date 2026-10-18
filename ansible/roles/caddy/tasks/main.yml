@@ -81,7 +81,7 @@
     chdir: /tmp
   environment:
     GOPATH: /root/go
-    XCADDY_GO_BUILD_FLAGS: "-ldflags '-w -s' -trimpath -tags=deprecated_topic,deprecated_claim"
+    XCADDY_GO_BUILD_FLAGS: "-ldflags '-w -s' -trimpath"
 
 - name: Stop Caddy service to swap binary
   service:
